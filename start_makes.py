@@ -13,7 +13,6 @@ import subprocess
 import os
 import sys
 import glob
-import shutil
 import string
 import random
 from datetime import datetime
@@ -21,7 +20,7 @@ import time
 import smtplib
 
 
-def possibleRuns():
+def possible_runs():
     possible_runs = []
     pr_file_handle = open(config.get('validate_waiting', 'output_file'), 'r')
     for line in pr_file_handle:
@@ -30,7 +29,7 @@ def possibleRuns():
     return possible_runs
 
 
-def inProgressRuns(array):
+def in_progress_runs(array):
     ipr_fh = open(config.get('validate_waiting', 'output_file'), 'w')
     for line in array:
         ipr_fh.write(line)
@@ -102,7 +101,7 @@ def email(content):
 def rsyncFile(dir):
     # get list of directories
     dirs = glob.glob(dir + "/Project*")
-    #need to get the plate id to prevent later name collisions
+    # need to get the plate id to prevent later name collisions
     print os.path.basename(os.path.dirname(dir))
     plateID = os.path.basename(os.path.dirname(dir)).split('_')[2]
     destPlace = config.get('Globals', 'OutDirectory')
@@ -125,12 +124,12 @@ def rsyncFile(dir):
                 rsync_out_pid = subprocess.Popen(['rsync', '-v', '-r', d, newName]).pid
                 logger.info("Rsync pid %s " % (rsync_out_pid,))
                 logger.info("Setting up output html %s,%s,%s,%s " % (d, pi, number, newNameBase))
-                time.sleep(10)  #give time for rsync to start making directories
+                time.sleep(10)  # give time for rsync to start making directories
                 sshSubDir(newName, pi, number, newNameBase)
             if int(number) < 1:
                 new_name_ssh = "helium.hpc.uiowa.edu:/Shared/IVR/" + newNameBase
                 logger.info("This is a Stone run rsync directly to IVR %s " % (new_name_ssh,))
-                #rsync_out_pid = subprocess.Popen(['rsync', '-v', '-r', d, new_name_ssh ]).pid
+                rsync_out_pid = subprocess.Popen(['rsync', '-v', '-r', d, new_name_ssh]).pid
                 logger.info("%s" % (d,))
     return True
 
@@ -149,7 +148,7 @@ logger.info("Starting")
 if config.get('validate_waiting', 'locked') == 'False':
     config.set('validate_waiting', 'locked', 'True')
     # get all lines in file
-    #foreach
+    # foreach
     #check load
     #check to see if started
     #if started see if delayed
@@ -168,7 +167,7 @@ if config.get('validate_waiting', 'locked') == 'False':
     #submit make
     #also write check
     #re-write lines if any
-    pr = possibleRuns()
+    pr = possible_runs()
     logger.info("See %s possible runs to process" % (len(pr)))
     notDone = []
     for p in pr:
@@ -189,13 +188,13 @@ if config.get('validate_waiting', 'locked') == 'False':
                 content = fh.readlines()
                 email(content)
                 addToDoneList(p)
-                if os.islink(p):
+                if os.path.islink(p):
                     os.remove(p)
                 done = True
         if not done:
             notDone.append(p)
 
-    inProgressRuns(notDone)
+    in_progress_runs(notDone)
     config.set('validate_waiting', 'locked', 'False')
 else:
     logger.warn("Lockfile set not able to process")
