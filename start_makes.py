@@ -36,14 +36,14 @@ def in_progress_runs(array):
         ipr_fh.write('\n')
 
 
-def makeFile(dir):
+def make_file(dir):
     os.chdir(dir)
     pid = subprocess.Popen(["nohup", "make", "-j", "2"]).pid
     logger.info("Started make PID=%s" % (pid,))
     return True
 
 
-def doneMake(dir):
+def done_make(dir):
     nohup = os.path.join(dir, 'nohup.out')
     if not os.path.exists(nohup):
         logger.warn("expected nohup file missing in %s " % (nohup, ))
@@ -59,7 +59,7 @@ def doneMake(dir):
     return False
 
 
-def sshSubDir(dir, PI, number, name):
+def sshSubDir(directory, PI, number, name):
     # ssh command generation
     sshCmd = [config.get('start_makes', 'pageGenPath')]
     sshUrl = config.get('start_makes', 'pageGenHost')
@@ -71,12 +71,12 @@ def sshSubDir(dir, PI, number, name):
     chars = string.ascii_lowercase + string.digits
     randLet = ''.join([random.choice(chars) for x in range(6)])
     sshCmd.append(randLet + PI.lower())
-    sshCmd.append(dir)
+    sshCmd.append(directory)
     htmlDir = config.get('start_makes', 'pageGenhtml')
     htmlDir += "/%s" % (name, )
     sshCmd.append(htmlDir)
     sshCmd.append('>>')
-    sshCmd.append(os.path.join(dir, 'pageGen.txt'))
+    sshCmd.append(os.path.join(directory, 'pageGen.txt'))
     sshCmdStr = " ".join(sshCmd)
     logger.info(sshCmdStr)
     pid = subprocess.Popen(['ssh', sshUrl, sshCmdStr]).pid
@@ -130,7 +130,7 @@ def rsyncFile(dir):
                 new_name_ssh = "helium.hpc.uiowa.edu:/Shared/IVR/" + newNameBase
                 logger.info("This is a Stone run rsync directly to IVR %s " % (new_name_ssh,))
                 rsync_out_pid = subprocess.Popen(['rsync', '-v', '-r', d, new_name_ssh]).pid
-                logger.info("%s" % (d,))
+                logger.info("rsync PID %s" % (rsync_out_pid,))
     return True
 
 
@@ -178,9 +178,9 @@ if config.get('validate_waiting', 'locked') == 'False':
                 "load is greater than %s will wait %s" % (config.get('start_makes', 'maxload'), os.getloadavg()[0],))
         else:
             if not os.path.exists(os.path.join(p, 'beingMaked')):
-                if makeFile(p):
+                if make_file(p):
                     open(os.path.join(p, 'beingMaked'), 'w').close()
-            elif not os.path.exists(os.path.join(p, 'beingRsynced')) and doneMake(p):
+            elif not os.path.exists(os.path.join(p, 'beingRsynced')) and done_make(p):
                 open(os.path.join(p, 'beingRsynced'), 'w').close()
                 rsyncFile(p)
             elif os.path.exists(os.path.join(p, 'pageGen.txt')):

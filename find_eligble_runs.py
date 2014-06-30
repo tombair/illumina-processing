@@ -13,6 +13,8 @@ import logging
 def find_dirs(directory):
     dirs = [d for d in os.listdir(directory)]
     return dirs
+
+
 def find_files(directory, pattern):
     try:
         files = os.listdir(directory)
@@ -20,11 +22,13 @@ def find_files(directory, pattern):
             basename = os.path.basename(f)
             if basename == pattern:
             #if fnmatch.fnmatch(basename, pattern):
-                yield os.path.join(directory,f)
-    except:
+                yield os.path.join(directory, f)
+    except Exception, e:
+        logger.info('Got exception %s from find_files in %s' % (e, sys.argv[1]))
         yield None
 
-def harvest_for_old_processes (file_to_check):
+
+def harvest_for_old_processes(file_to_check):
     ds = []
     fh = open(file_to_check)
     for line in fh:
@@ -34,12 +38,12 @@ def harvest_for_old_processes (file_to_check):
 
 config = ConfigParser.ConfigParser()
 config.readfp(open('pathway.cfg'))
-readDirectory = config.get('Globals','SeqDirectory')
-readySymDir = config.get('Globals','readyToRun')
-done = config.get('Globals','doneIgnore')
+readDirectory = config.get('Globals', 'SeqDirectory')
+readySymDir = config.get('Globals', 'readyToRun')
+done = config.get('Globals', 'doneIgnore')
 
 logger = logging.getLogger(sys.argv[0])
-fh = logging.FileHandler(config.get('Globals','logfile'))
+fh = logging.FileHandler(config.get('Globals', 'logfile'))
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
 logger.addHandler(fh)
@@ -51,16 +55,16 @@ dirs = find_dirs(readDirectory)
 count = 0
 total = 0 
 for d in dirs:
-    d = os.path.join(readDirectory,d)
+    d = os.path.join(readDirectory, d)
     files = find_files(d, 'Basecalling_Netcopy_complete.txt')
     for file in files:
-        if file != None:
+        if file is not None:
             total += 1
-            if os.path.exists(os.path.join(d,'ImageAnalysis_Netcopy_complete.txt')) == True: 
+            if os.path.exists(os.path.join(d, 'ImageAnalysis_Netcopy_complete.txt')):
                 if os.path.dirname(file) not in old_processes:
                     count += 1
-                    rtw = os.path.join(readySymDir,os.path.basename(os.path.dirname(file)))
-                    if os.path.exists(rtw) == False:
-                        os.symlink(os.path.dirname(file),rtw)
-logger.info("Found %s directories that have data" %(total,))
+                    rtw = os.path.join(readySymDir, os.path.basename(os.path.dirname(file)))
+                    if not os.path.exists(rtw):
+                        os.symlink(os.path.dirname(file), rtw)
+logger.info("Found %s directories that have data" % (total, ))
 logger.info("Found %s directories that need processed" % (count,))
