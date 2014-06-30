@@ -70,7 +70,7 @@ def processSampleSheet(size, directory, csvFile):
 
 def runSampleSheet(dir, size, sampleSheet):
     output = os.path.join(dir, "Unaligned%s" % (size, ))
-    bclOut = ""
+    bclOut = None
     logger.info("configureBclToFastq for size %s" % (size, ))
     if size > 1:
         bclOut = subprocess.check_output(

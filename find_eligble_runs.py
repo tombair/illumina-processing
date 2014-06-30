@@ -11,17 +11,16 @@ import logging
 
 
 def find_dirs(directory):
-    dirs = [d for d in os.listdir(directory)]
-    return dirs
+    find_dirs_list = [d1 for d1 in os.listdir(directory)]
+    return find_dirs_list
 
 
 def find_files(directory, pattern):
     try:
-        files = os.listdir(directory)
-        for f in files:
+        found_files = os.listdir(directory)
+        for f in found_files:
             basename = os.path.basename(f)
             if basename == pattern:
-            #if fnmatch.fnmatch(basename, pattern):
                 yield os.path.join(directory, f)
     except Exception, e:
         logger.info('Got exception %s from find_files in %s' % (e, sys.argv[1]))
@@ -30,8 +29,8 @@ def find_files(directory, pattern):
 
 def harvest_for_old_processes(file_to_check):
     ds = []
-    fh = open(file_to_check)
-    for line in fh:
+    old_processes_file = open(file_to_check, 'r')
+    for line in old_processes_file:
         line = line.strip('\n')
         ds.append(line)
     return ds
