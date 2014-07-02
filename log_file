@@ -1,0 +1,6 @@
+2014-07-02 14:31:51,177 - /Users/tbair/PycharmProjects/illumina-processing/find_eligble_runs.py - INFO - Starting
+2014-07-02 14:34:36,271 - /Users/tbair/PycharmProjects/illumina-processing/find_eligble_runs.py - INFO - Starting
+2014-07-02 14:37:25,951 - /Users/tbair/PycharmProjects/illumina-processing/find_eligble_runs.py - INFO - Starting
+2014-07-02 14:37:25,951 - /Users/tbair/PycharmProjects/illumina-processing/find_eligble_runs.py - WARNING - Config file might be wrong cannot find read directory check Globals -> SeqDirectory
+2014-07-02 14:47:36,975 - /Users/tbair/PycharmProjects/illumina-processing/find_eligble_runs.py - INFO - Starting
+2014-07-02 14:47:36,975 - /Users/tbair/PycharmProjects/illumina-processing/find_eligble_runs.py - WARNING - Config file might be wrong cannot find read directory check Globals -> SeqDirectory
