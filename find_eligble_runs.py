@@ -185,16 +185,16 @@ for d in dirs:
                 else:
                     logger.warn("link already exists for %s in %s "% (d, rtw ))
                 #now that it is done process the sample sheet and run the bclToFastq
-                csv = check_directory(dir)
+                csv = check_directory(rtw)
                 if csv is not None:
                         for s in config.get('find_eligible_runs','index_sizes'):  # sizes of indexes
-                            csvFound = process_sample_sheet(s, dir, csv)
+                            csvFound = process_sample_sheet(s, rtw, csv)
                             if csvFound is not None:
                                 logger.info(
                                     "Found good sample sheet for size % running bclToFastQ for %s in %s" % (s, csvFound, dir))
                                 #Found and wrote a particular size csvFile need to note it and get ready to run it
                                 try:
-                                    proc = run_sample_sheet(dir, s, csvFound)
+                                    proc = run_sample_sheet(rtw, s, csvFound)
                                     #write proc to dir to run makes on
                                     output_fh = open(config.get('find_eligible_runs', 'output_file'), 'a')
                                     output_fh.write("%s\n" % (proc,))
