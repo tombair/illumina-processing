@@ -188,7 +188,7 @@ for d in dirs:
                 #now that it is done process the sample sheet and run the bclToFastq
                 csv = check_directory(rtw)
                 if csv is not None:
-                        for s in config.get('find_eligible_runs','index_sizes'):  # sizes of indexes
+                        for s in config.get('find_eligible_runs','index_sizes').split(','):  # sizes of indexes
                             csvFound = process_sample_sheet(s, rtw, csv)
                             if csvFound is not None:
                                 logger.info(
