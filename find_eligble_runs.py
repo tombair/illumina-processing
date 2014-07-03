@@ -208,7 +208,7 @@ for d in dirs:
                                     logger.warn("Did not find a single csv file in %s " % (dir, ))
 
             else:
-                    logger.info("%s did not have all required files " %(d, ))
+                logger.info("%s did not have all required files " %(d, ))
             config.set('find_eligible_runs', 'locked', 'False')
         else:
             logger.warn("Lockfile set not able to process")
