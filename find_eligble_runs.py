@@ -17,6 +17,7 @@ def find_dirs(directory):
 
 def has_required_files(directory_to_check, list_of_files):
     for file_to_check in list_of_files:
+        logger.info("Checking for %s " %os.path.join(directory_to_check,file_to_check))
         if not os.path.exists(os.path.join(directory_to_check,file_to_check)):
             return False
     return True
