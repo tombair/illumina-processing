@@ -174,7 +174,7 @@ for d in dirs:
                 logger.info("This does not look like a results directory %s " %(d))
                 logger.info("Adding to done directory")
                 append_to_already_run(d,done_directories)
-            if has_required_files(d,config.get('find_eligible_runs','check_files')): # check to make sure it is ready
+            if has_required_files(d,config.get('find_eligible_runs','check_files').split(',')): # check to make sure it is ready
                 rtw = os.path.join(readySymDir, os.path.basename(os.path.dirname(file)))
                 if not os.path.exists(rtw):
                     os.symlink(os.path.dirname(file), rtw)
