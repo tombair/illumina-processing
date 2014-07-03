@@ -52,6 +52,11 @@ Checks to see if a directory has a single .csv file, if so it returns the path t
     logger.info("Directory looks complete %s" % (dir, ))
     return csvFiles[0]
 
+def illumina_directory_form(d):
+    if len(os.path.basename(d).split('_')) == 3:
+        if d.endswith('XX'):
+            return True
+    return False
 
 def process_sample_sheet(size, directory, csvFile):
     csvFileOut = directory + "/processedSampleSheet%s.csv" % (size, )
@@ -160,6 +165,10 @@ for d in dirs:
         logger.info('Starting to process %s ', (d, ))
         if config.get('find_eligible_runs', 'locked') == 'False':
             config.set('find_eligible_runs', 'locked', 'True')
+            if not illumina_directory_form(d):
+                logger.info("This does not look like a results directory %s " %(d))
+                logger.info("Adding to done directory")
+                append_to_already_run(d,done_directories)
             if has_required_files(d,config.get('find_eligible_runs','check_files')): # check to make sure it is ready
                 rtw = os.path.join(readySymDir, os.path.basename(os.path.dirname(file)))
                 if not os.path.exists(rtw):
