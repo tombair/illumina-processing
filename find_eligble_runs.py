@@ -183,7 +183,7 @@ for d in dirs:
                 if not os.path.exists(rtw):
                     os.symlink(os.path.dirname(d), rtw)
                 else:
-                logger.warn("link already exists for %s in %s "% (d, rtw ))
+                    logger.warn("link already exists for %s in %s "% (d, rtw ))
                 #now that it is done process the sample sheet and run the bclToFastq
                 csv = check_directory(dir)
                 if csv is not None:
