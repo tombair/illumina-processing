@@ -176,9 +176,9 @@ for d in dirs:
                 logger.info("Adding to done directory")
                 append_to_already_run(d,done_directories)
             if has_required_files(d, config.get('find_eligible_runs','check_files')): # check to make sure it is ready
-                rtw = os.path.join(readySymDir, os.path.basename(os.path.dirname(file)))
+                rtw = os.path.join(readySymDir, os.path.basename(os.path.dirname(d)))
                 if not os.path.exists(rtw):
-                    os.symlink(os.path.dirname(file), rtw)
+                    os.symlink(os.path.dirname(d), rtw)
                     #have linked the directory to the ready folder should now append it to the done file
                     append_to_already_run(d,done_directories)
                     #now that it is done process the sample sheet and run the bclToFastq
