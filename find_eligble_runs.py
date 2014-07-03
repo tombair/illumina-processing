@@ -155,7 +155,6 @@ total = 0
 
 for d in dirs:
     d = os.path.join(readDirectory, d)
-    print d
     if d not in old_processes: # check to see if we have already processed this file
         count += 1
         if config.get('find_eligible_runs', 'locked') == 'False':
@@ -182,6 +181,7 @@ for d in dirs:
                                         output_fh = open(config.get('find_eligible_runs', 'output_file'), 'a')
                                         output_fh.write("%s\n" % (proc,))
                                         output_fh.close()
+                                        count += 1
                                     except Exception, e:
                                         logger.warn("Error on bcltoFastq %s" % (e, ))
                                 else:
