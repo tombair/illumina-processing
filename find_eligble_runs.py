@@ -181,7 +181,7 @@ for d in dirs:
                 else:
                     rtw = os.path.join(readySymDir, os.path.basename(os.path.dirname(d)))
                 if not os.path.exists(rtw):
-                    os.symlink(os.path.dirname(d), rtw)
+                    os.symlink(d, rtw)
                 else:
                     logger.warn("link already exists for %s in %s "% (d, rtw ))
                 #now that it is done process the sample sheet and run the bclToFastq
