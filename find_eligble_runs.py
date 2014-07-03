@@ -38,22 +38,22 @@ def append_to_already_run(directory_path,done_file_path):
     append_fh.write("\n")
     append_fh.close()
 
-def check_directory(dir):
+def check_directory(check_directory):
     """
 Checks to see if a directory has a single .csv file, if so it returns the path to the csv file
     :param dir to check:
     :return csv file to be processed:
     """
-    logger.info("checking %s for sample_sheets " %(dir, ) )
-    csvFiles = glob.glob(os.path.join(dir , "/*.csv"))
+    logger.info("checking %s for sample_sheets " %(check_directory, ) )
+    csvFiles = glob.glob(os.path.join(check_directory , "/*.csv"))
     if len(csvFiles) != 1:
         if len(csvFiles) > 1:
-            logger.warn("Multiple sample sheets -- remove redundant in %s " % (dir, ))
+            logger.warn("Multiple sample sheets -- remove redundant in %s " % (check_directory, ))
             return None
         else:
-            logger.warn("Cannot find sample sheet in %s " % (dir,))
+            logger.warn("Cannot find sample sheet in %s " % (check_directory,))
             return None
-    logger.info("Directory looks complete %s" % (dir, ))
+    logger.info("Directory looks complete %s" % (check_directory, ))
     return csvFiles[0]
 
 def illumina_directory_form(d):
