@@ -57,8 +57,10 @@ Checks to see if a directory has a single .csv file, if so it returns the path t
 def illumina_directory_form(d):
     print os.path.basename(d).split('_')
     if len(os.path.dirname(d).split('_')) == 4:
+        logger.info('directory has correct number of _')
         if d.endswith('XX'):
             return True
+        logger.info('does not end with XX perhaps change')
     return False
 
 def process_sample_sheet(size, directory, csvFile):
