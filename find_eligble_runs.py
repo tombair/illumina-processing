@@ -165,7 +165,7 @@ total = 0
 for d in dirs:
     d = os.path.join(readDirectory, d)
     if d not in old_processes: # check to see if we have already processed this file
-        count += 1
+        total += 1
         logger.info('Starting to process %s ', (d, ))
         if config.get('find_eligible_runs', 'locked') == 'False':
             config.set('find_eligible_runs', 'locked', 'True')
@@ -177,7 +177,6 @@ for d in dirs:
                 rtw = os.path.join(readySymDir, os.path.basename(os.path.dirname(file)))
                 if not os.path.exists(rtw):
                     os.symlink(os.path.dirname(file), rtw)
-                    total += 1
                     #have linked the directory to the ready folder should now append it to the done file
                     append_to_already_run(d,done_directories)
                     #now that it is done process the sample sheet and run the bclToFastq
