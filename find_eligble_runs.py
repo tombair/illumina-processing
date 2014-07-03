@@ -157,6 +157,7 @@ for d in dirs:
     d = os.path.join(readDirectory, d)
     if d not in old_processes: # check to see if we have already processed this file
         count += 1
+        logger.info('Starting to process %s ', (d, ))
         if config.get('find_eligible_runs', 'locked') == 'False':
             config.set('find_eligible_runs', 'locked', 'True')
             if has_required_files(d,config.get('find_eligible_runs','check_files')): # check to make sure it is ready
