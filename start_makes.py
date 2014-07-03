@@ -22,7 +22,7 @@ import smtplib
 
 def possible_runs():
     possible_runs = []
-    pr_file_handle = open(config.get('validate_waiting', 'output_file'), 'r')
+    pr_file_handle = open(config.get('find_eligible_runs', 'output_file'), 'r')
     for line in pr_file_handle:
         line = line.strip('\n')
         possible_runs.append(line)
@@ -38,8 +38,8 @@ def in_progress_runs(array):
 
 def make_file(dir):
     os.chdir(dir)
-    pid = subprocess.Popen(["nohup", "make", "-j", "2"]).pid
-    logger.info("Started make PID=%s" % (pid,))
+    return_value = subprocess.call("nohup make -j 8", shell=True)
+    logger.info("Started make it returned %s" % (return_value,))
     return True
 
 
@@ -79,8 +79,9 @@ def sshSubDir(directory, PI, number, name):
     sshCmd.append(os.path.join(directory, 'pageGen.txt'))
     sshCmdStr = " ".join(sshCmd)
     logger.info(sshCmdStr)
-    pid = subprocess.Popen(['ssh', sshUrl, sshCmdStr]).pid
-    logger.info("ssh pid %s " % (pid, ))
+    # need to collect the std out from this command to get the username and password
+    pid = subprocess.Popen(['ssh', sshUrl, sshCmdStr],stdout=subprocess.PIPE)
+    logger.info("ssh return value %s " % (pid.communicate()[0], ))
 
 
 def addToDoneList(path_done):
@@ -121,16 +122,19 @@ def rsyncFile(dir):
                 newName = os.path.join(newName, newNameBase)
             if int(number) > 100:
                 logger.info("Started rsync %s " % (newName,))
-                rsync_out_pid = subprocess.Popen(['rsync', '-v', '-r', d, newName]).pid
-                logger.info("Rsync pid %s " % (rsync_out_pid,))
+                rsync_ret_code= subprocess.call("rsync -v -r %s %s" % (d, newName), shell=True)
+                if rsync_ret_code = <0:
+                        logger.warn("rsync ret code failed %s" % (rsync_ret_code, ))
+                        logger.warn("Tried rsyncing  %s to %s " % (d, newName))
+                logger.info("Finished rsync %s to %s " % (d, newName))
                 logger.info("Setting up output html %s,%s,%s,%s " % (d, pi, number, newNameBase))
                 time.sleep(10)  # give time for rsync to start making directories
                 sshSubDir(newName, pi, number, newNameBase)
             if int(number) < 1:
                 new_name_ssh = "helium.hpc.uiowa.edu:/Shared/IVR/" + newNameBase
                 logger.info("This is a Stone run rsync directly to IVR %s " % (new_name_ssh,))
-                rsync_out_pid = subprocess.Popen(['rsync', '-v', '-r', d, new_name_ssh]).pid
-                logger.info("rsync PID %s" % (rsync_out_pid,))
+                rsync_ret_code = subprocess.call("rsync -v -r %s %s" % (d, new_name_ssh), shell=True)
+                logger.info("rsync return code %s" % (rsync_ret_code,))
     return True
 
 
@@ -145,9 +149,10 @@ fh.setFormatter(formatter)
 logger.addHandler(fh)
 logger.setLevel(logging.INFO)
 logger.info("Starting")
-email("testemail")
-if config.get('validate_waiting', 'locked') == 'False':
-    config.set('validate_waiting', 'locked', 'True')
+
+
+if config.get('start_makes', 'locked') == 'False':
+    config.set('start_makes', 'locked', 'True')
     pr = possible_runs()
     logger.info("See %s possible runs to process" % (len(pr)))
     notDone = []
@@ -159,10 +164,10 @@ if config.get('validate_waiting', 'locked') == 'False':
                 "load is greater than %s will wait %s" % (config.get('start_makes', 'maxload'), os.getloadavg()[0],))
         else:
             if not os.path.exists(os.path.join(p, 'beingMaked')):
-                if make_file(p):
-                    open(os.path.join(p, 'beingMaked'), 'w').close()
-            elif not os.path.exists(os.path.join(p, 'beingRsynced')) and done_make(p):
-                open(os.path.join(p, 'beingRsynced'), 'w').close()
+                open(os.path.join(p, 'being_Maked'), 'w').close()
+                make_file(p)
+            if not os.path.exists(os.path.join(p, 'beingRsynced')) and done_make(p):
+                open(os.path.join(p, 'being_Rsynced'), 'w').close()
                 rsyncFile(p)
             elif os.path.exists(os.path.join(p, 'pageGen.txt')):
                 fh = open(os.path.join(p, 'pageGen.txt'), 'r')

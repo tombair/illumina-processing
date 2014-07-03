@@ -94,16 +94,17 @@ Funtion to take directory path, size of index, and path to sample sheet. Runs th
     output = os.path.join(base_directory, "Unaligned%s" % (size, ))
     logger.info("configureBclToFastq for size %s" % (size, ))
     if size > 1:
-        bcl_process = subprocess.check_output(
+        bcl_process = subprocess.Popen(
             ['/opt/illumina/bin/configureBclToFastq.pl', '--sample-sheet', sample_sheet, '--input-dir',
              base_directory + '/Data/Intensities/BaseCalls', '--output-dir', output, '--ignore-missing-bcl',
-             '--ignore-missing-stat', '--fastq-cluster-count=0', "--use-bases-mask=y*,I%sN*,y*" % (size,)])
+             '--ignore-missing-stat', '--fastq-cluster-count=0', "--use-bases-mask=y*,I%sN*,y*" % (size,)], stdout=subprocess.PIPE)
+        logger.info(bcl_process.communicate()[0])
     else:
-        bcl_process = subprocess.check_output(
+        bcl_process = subprocess.Popen(
             ['/opt/illumina/bin/configureBclToFastq.pl', '--sample-sheet', sample_sheet, '--input-dir',
              base_directory + '/Data/Intensities/BaseCalls', '--output-dir', output, '--ignore-missing-bcl',
-             '--ignore-missing-stat', '--fastq-cluster-count=0'])
-    logger.info(bcl_process)
+             '--ignore-missing-stat', '--fastq-cluster-count=0'], stdout=subprocess.PIPE)
+    logger.info(bcl_process.communicate()[0])
     return output
 
 
