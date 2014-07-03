@@ -206,7 +206,7 @@ for d in dirs:
                                 except Exception, e:
                                     logger.warn("Error on bcltoFastq %s" % (e, ))
                             else:
-                                    logger.warn("Did not find a single csv file in %s " % (dir, ))
+                                    logger.warn("Did not find a single csv file in %s " % (rtw, ))
 
             else:
                 logger.info("%s did not have all required files " %(d, ))
