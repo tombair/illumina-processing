@@ -42,7 +42,8 @@ Checks to see if a directory has a single .csv file, if so it returns the path t
     :param dir to check:
     :return csv file to be processed:
     """
-    csvFiles = glob.glob(dir + "/*.csv")
+    logger.info("checking %s for sample_sheets " %(dir, ) )
+    csvFiles = glob.glob(os.path.joine(dir , "/*.csv"))
     if len(csvFiles) != 1:
         if len(csvFiles) > 1:
             logger.warn("Multiple sample sheets -- remove redundant in %s " % (dir, ))
