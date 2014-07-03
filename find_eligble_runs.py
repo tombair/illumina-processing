@@ -189,6 +189,7 @@ for d in dirs:
                 csv = check_directory(rtw)
                 if csv is not None:
                         for s in config.get('find_eligible_runs','index_sizes').split(','):  # sizes of indexes
+                            s = int(s)
                             csvFound = process_sample_sheet(s, rtw, csv)
                             if csvFound is not None:
                                 logger.info(
