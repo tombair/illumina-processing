@@ -145,28 +145,9 @@ fh.setFormatter(formatter)
 logger.addHandler(fh)
 logger.setLevel(logging.INFO)
 logger.info("Starting")
+email("testemail")
 if config.get('validate_waiting', 'locked') == 'False':
     config.set('validate_waiting', 'locked', 'True')
-    # get all lines in file
-    # foreach
-    #check load
-    #check to see if started
-    #if started see if delayed
-    #if started see if finished
-    #if finished make
-    #write rsync flag
-    #rsync
-    #write finished
-    #if finished rsync
-    #move stone stuff
-    #ssh http command
-    #remove from file
-    #write to donefile
-    #if ok
-    #write check flag
-    #submit make
-    #also write check
-    #re-write lines if any
     pr = possible_runs()
     logger.info("See %s possible runs to process" % (len(pr)))
     notDone = []
