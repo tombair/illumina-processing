@@ -209,6 +209,7 @@ for d in dirs:
 
             else:
                 logger.info("%s did not have all required files " %(d, ))
+
             config.set('find_eligible_runs', 'locked', 'False')
         else:
             logger.warn("Lockfile set not able to process")

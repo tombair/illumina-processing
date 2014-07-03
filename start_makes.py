@@ -123,7 +123,7 @@ def rsyncFile(dir):
             if int(number) > 100:
                 logger.info("Started rsync %s " % (newName,))
                 rsync_ret_code= subprocess.call("rsync -v -r %s %s" % (d, newName), shell=True)
-                if rsync_ret_code = <0:
+                if rsync_ret_code >= 0:
                         logger.warn("rsync ret code failed %s" % (rsync_ret_code, ))
                         logger.warn("Tried rsyncing  %s to %s " % (d, newName))
                 logger.info("Finished rsync %s to %s " % (d, newName))
