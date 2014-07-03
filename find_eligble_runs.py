@@ -182,30 +182,31 @@ for d in dirs:
                     rtw = os.path.join(readySymDir, os.path.basename(os.path.dirname(d)))
                 if not os.path.exists(rtw):
                     os.symlink(os.path.dirname(d), rtw)
-                    #have linked the directory to the ready folder should now append it to the done file
-                    append_to_already_run(d,done_directories)
-                    #now that it is done process the sample sheet and run the bclToFastq
-                    csv = check_directory(dir)
-                    if csv is not None:
-                            for s in config.get('find_eligible_runs','index_sizes'):  # sizes of indexes
-                                csvFound = process_sample_sheet(s, dir, csv)
-                                if csvFound is not None:
-                                    logger.info(
-                                        "Found good sample sheet for size % running bclToFastQ for %s in %s" % (s, csvFound, dir))
-                                    #Found and wrote a particular size csvFile need to note it and get ready to run it
-                                    try:
-                                        proc = run_sample_sheet(dir, s, csvFound)
-                                        #write proc to dir to run makes on
-                                        output_fh = open(config.get('find_eligible_runs', 'output_file'), 'a')
-                                        output_fh.write("%s\n" % (proc,))
-                                        output_fh.close()
-                                        count += 1
-                                    except Exception, e:
-                                        logger.warn("Error on bcltoFastq %s" % (e, ))
-                                else:
-                                        logger.warn("Did not find a single csv file in %s " % (dir, ))
-                else:
-                    logger.warn("link already exists for %s in %s "% (d, rtw ))
+               else:
+                logger.warn("link already exists for %s in %s "% (d, rtw ))
+                #now that it is done process the sample sheet and run the bclToFastq
+                csv = check_directory(dir)
+                if csv is not None:
+                        for s in config.get('find_eligible_runs','index_sizes'):  # sizes of indexes
+                            csvFound = process_sample_sheet(s, dir, csv)
+                            if csvFound is not None:
+                                logger.info(
+                                    "Found good sample sheet for size % running bclToFastQ for %s in %s" % (s, csvFound, dir))
+                                #Found and wrote a particular size csvFile need to note it and get ready to run it
+                                try:
+                                    proc = run_sample_sheet(dir, s, csvFound)
+                                    #write proc to dir to run makes on
+                                    output_fh = open(config.get('find_eligible_runs', 'output_file'), 'a')
+                                    output_fh.write("%s\n" % (proc,))
+                                    output_fh.close()
+                                    count += 1
+                                     #have linked the directory to the ready folder should now append it to the done file
+                                    append_to_already_run(d,done_directories)
+                                except Exception, e:
+                                    logger.warn("Error on bcltoFastq %s" % (e, ))
+                            else:
+                                    logger.warn("Did not find a single csv file in %s " % (dir, ))
+
             else:
                     logger.info("%s did not have all required files " %(d, ))
             config.set('find_eligible_runs', 'locked', 'False')
