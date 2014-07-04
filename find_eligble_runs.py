@@ -140,7 +140,10 @@ def in_waiting_directory(dir):
 
 # Set up reading of config file
 config = ConfigParser.ConfigParser()
-config.readfp(open('pathway.cfg'))
+if sys.argv[1] is not None:
+    config.readfp(open(sys.argv[1]))
+else:
+    config.readfp(open('pathway.cfg'))
 readDirectory = config.get('Globals', 'SeqDirectory')
 readySymDir = config.get('Globals', 'readyToRun')
 done_directories = config.get('Globals', 'doneIgnore')

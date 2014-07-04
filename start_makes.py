@@ -139,7 +139,10 @@ def rsyncFile(dir):
 
 
 config = ConfigParser.SafeConfigParser()
-config.readfp(open('pathway.cfg'))
+if sys.argv[1] is not None:
+    config.readfp(open(sys.argv[1]))
+else:
+    config.readfp(open('pathway.cfg'))
 readySymDir = config.get('Globals', 'readyToRun')
 readyToMake = config.get('Globals', 'waitingToRun')
 logger = logging.getLogger(sys.argv[0])
