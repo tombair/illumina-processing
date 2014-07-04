@@ -176,6 +176,7 @@ if config.get('start_makes', 'locked') == 'False':
                 open(os.path.join(p, 'being_Rsynced'), 'w').close()
                 rsyncFile(p)
             elif os.path.exists(os.path.join(p, 'pageGen.txt')):
+                # pageGene should have been written by the ssh method called from rsyncFile --messy fixme
                 fh = open(os.path.join(p, 'pageGen.txt'), 'r')
                 content = fh.readlines()
                 email(content)
