@@ -117,12 +117,15 @@ def rsyncFile(dir):
             newNameBase = "%s-%s_%s_%s" % (datetime.utcnow().strftime("%Y%m%d"), plateID, pi, number)
             newName = os.path.join(destPlace, newNameBase)
             logger.info("Rsyncing to %s " % (newName,))
-            while os.path.exists(newName):
-                logger.warn("Detected name collision before rysnc with %s " % (newName,))
-                newName = os.path.join(newName, newNameBase)
+            if not os.path.exists(newName):
+                    os.makedirs(newName)
+            #shouldn't need this but leaving it here as a note rsync should handle writing under this
+            #while os.path.exists(newName):
+            #    logger.warn("Detected name collision before rysnc with %s " % (newName,))
+            #    newName = os.path.join(newName, newNameBase)
             if int(number) > 100:
                 logger.info("Started rsync %s " % (newName,))
-                rsync_ret_code= subprocess.call("rsync -v -r %s %s" % (d, newName), shell=True)
+                rsync_ret_code= subprocess.call("rsync -v -r -u %s %s" % (d, newName), shell=True)
                 if rsync_ret_code >= 0:
                         logger.warn("rsync ret code failed %s" % (rsync_ret_code, ))
                         logger.warn("Tried rsyncing  %s to %s " % (d, newName))
