@@ -52,7 +52,7 @@ def done_make(dir):
         lastLine = dm_fh.readlines()[-1]
         lastLine = lastLine.strip('\n')
         cols = lastLine.split('\t')
-        if cols[3] == 'INFO: all completed successfully.':
+        if cols is not None and len(cols) >= 4 and cols[3] == 'INFO: all completed successfully.':
             logger.info("%s completed successfully" % (dir, ))
             return True
         logger.info("Found last line of %s in %s" % (lastLine, nohup))
