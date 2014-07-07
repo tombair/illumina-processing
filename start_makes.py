@@ -30,7 +30,7 @@ def possible_runs():
 
 
 def in_progress_runs(array):
-    ipr_fh = open(config.get('validate_waiting', 'output_file'), 'w')
+    ipr_fh = open(config.get('find_eligible_runs', 'output_file'), 'w')
     for line in array:
         ipr_fh.write(line)
         ipr_fh.write('\n')
@@ -164,8 +164,8 @@ if config.get('start_makes', 'locked') == 'False':
     notDone = []
     for p in pr:
         done = False
+        logger.info("Looking at %s " % (p,))
         if os.getloadavg()[0] > int(config.get('start_makes', 'maxload')):
-            logger.info("Looking at %s " % (p,))
             logger.info(
                 "load is greater than %s will wait %s" % (config.get('start_makes', 'maxload'), os.getloadavg()[0],))
         else:
@@ -188,7 +188,7 @@ if config.get('start_makes', 'locked') == 'False':
             notDone.append(p)
 
     in_progress_runs(notDone)
-    config.set('validate_waiting', 'locked', 'False')
+    config.set('start_makes', 'locked', 'False')
 else:
     logger.warn("Lockfile set not able to process")
 
