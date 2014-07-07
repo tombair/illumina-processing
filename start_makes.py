@@ -147,7 +147,6 @@ if len(sys.argv) == 2:
 else:
     config.readfp(open('pathway.cfg'))
 readySymDir = config.get('Globals', 'readyToRun')
-readyToMake = config.get('Globals', 'waitingToRun')
 logger = logging.getLogger(sys.argv[0])
 fh = logging.FileHandler(config.get('Globals', 'logfile'))
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
