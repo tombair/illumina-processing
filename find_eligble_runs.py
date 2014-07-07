@@ -140,7 +140,7 @@ def in_waiting_directory(dir):
 
 # Set up reading of config file
 config = ConfigParser.ConfigParser()
-if sys.argv[1] is not None:
+if len(sys.argv) == 1:
     config.readfp(open(sys.argv[1]))
 else:
     config.readfp(open('pathway.cfg'))

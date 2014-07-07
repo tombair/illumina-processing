@@ -142,7 +142,7 @@ def rsyncFile(dir):
 
 
 config = ConfigParser.SafeConfigParser()
-if sys.argv[1] is not None:
+if len(sys.argv) == 1:
     config.readfp(open(sys.argv[1]))
 else:
     config.readfp(open('pathway.cfg'))
