@@ -47,15 +47,21 @@ Checks to see if a directory has a single .csv file, if so it returns the path t
     logger.info("checking %s for sample_sheets " %(check_directory, ) )
     csvFiles = glob.glob(check_directory +"/*.csv")
     logger.info("found sample sheets %s " % (csvFiles, ))
-    if len(csvFiles) != 1:
-        if len(csvFiles) > 1:
+    # really need to ignore the processedSampleSheetsX ones so remove those from the list
+    cleaned_csv_files = []
+    for c in csvFiles:
+            if not os.path.basename(c).startswith("processedSampleSheet"):
+                cleaned_csv_files.append(c)
+
+    if len(cleaned_csv_files) != 1:
+        if len(cleaned_csv_files) > 1:
             logger.warn("Multiple sample sheets -- remove redundant in %s " % (check_directory, ))
             return None
         else:
             logger.warn("Cannot find sample sheet in %s " % (check_directory,))
             return None
     logger.info("Directory looks complete %s" % (check_directory, ))
-    return csvFiles[0]
+    return cleaned_csv_files[0]
 
 def illumina_directory_form(d):
     if len(os.path.basename(d).split('_')) == 4:
