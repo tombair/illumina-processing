@@ -120,14 +120,14 @@ Funtion to take directory path, size of index, and path to sample sheet. Runs th
     return output
 
 
-def in_waiting_directory(dir):
+def in_waiting_directory(d):
     if config.get('validate_waiting', 'locked') == 'False':
         config.set('validate_waiting', 'locked', 'True')
         fh = open(config.get('validate_waiting', 'output_file'), 'r')
         for line in fh:
             line = line.strip('\n')
-            if os.path.dirname(line) == dir:
-                logger.info("already found file %s" % (dir,))
+            if os.path.dirname(line) == d:
+                logger.info("already found file %s" % (d,))
                 config.set('validate_waiting', 'locked', 'False')
                 return True
         fh.close()
@@ -196,7 +196,7 @@ for d in dirs:
                             csvFound = process_sample_sheet(s, rtw, csv)
                             if csvFound is not None:
                                 logger.info(
-                                    "Found good sample sheet for size % running bclToFastQ for %s in %s" % (s, csvFound, dir))
+                                    "Found good sample sheet for size % running bclToFastQ for %s in %s" % (s, csvFound, d))
                                 #Found and wrote a particular size csvFile need to note it and get ready to run it
                                 try:
                                     proc = run_sample_sheet(rtw, s, csvFound)

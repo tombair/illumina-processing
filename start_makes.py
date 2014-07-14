@@ -36,15 +36,15 @@ def in_progress_runs(array):
         ipr_fh.write('\n')
 
 
-def make_file(dir):
-    os.chdir(dir)
+def make_file(d):
+    os.chdir(d)
     return_value = subprocess.call("nohup make -j 8", shell=True)
     logger.info("Started make it returned %s" % (return_value,))
     return True
 
 
-def done_make(dir):
-    nohup = os.path.join(dir, 'nohup.out')
+def done_make(d):
+    nohup = os.path.join(d, 'nohup.out')
     if not os.path.exists(nohup):
         logger.warn("expected nohup file missing in %s " % (nohup, ))
     else:
@@ -53,7 +53,7 @@ def done_make(dir):
         lastLine = lastLine.strip('\n')
         cols = lastLine.split('\t')
         if cols is not None and len(cols) >= 4 and cols[3] == 'INFO: all completed successfully.':
-            logger.info("%s completed successfully" % (dir, ))
+            logger.info("%s completed successfully" % (d, ))
             return True
         logger.info("Found last line of %s in %s" % (lastLine, nohup))
     return False
@@ -99,12 +99,12 @@ def email(content):
     server.quit()
 
 
-def rsyncFile(dir):
+def rsyncFile(d):
     # get list of directories
-    dirs = glob.glob(dir + "/Project*")
+    dirs = glob.glob(d + "/Project*")
     # need to get the plate id to prevent later name collisions
-    print os.path.basename(os.path.dirname(dir))
-    plateID = os.path.basename(os.path.dirname(dir)).split('_')[2]
+    print os.path.basename(os.path.dirname(d))
+    plateID = os.path.basename(os.path.dirname(d)).split('_')[2]
     destPlace = config.get('Globals', 'OutDirectory')
     for d in dirs:
         if os.path.isdir(d):
