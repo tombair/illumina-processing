@@ -89,6 +89,9 @@ def process_sample_sheet(size, directory, csvFile):
         line = line.replace('-', '_')
         line = line.replace(' ', '_')
         cols = line.split(',')
+        if len(cols) != 10:
+                logger.warn("Sample sheet has the wrong number of columns found %s looking for 10" %(len(cols),))
+                logger.warn(line)
         index_size = len(cols[4])
         if index_size == size:
             outputFlag = True
