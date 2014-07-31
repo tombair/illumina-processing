@@ -168,10 +168,10 @@ if config.get('start_makes', 'locked') == 'False':
             logger.info(
                 "load is greater than %s will wait %s" % (config.get('start_makes', 'maxload'), os.getloadavg()[0],))
         else:
-            if not os.path.exists(os.path.join(p, 'beingMaked')):
+            if not os.path.exists(os.path.join(p, 'being_Maked')):
                 open(os.path.join(p, 'being_Maked'), 'w').close()
                 make_file(p)
-            if not os.path.exists(os.path.join(p, 'beingRsynced')) and done_make(p):
+            if not os.path.exists(os.path.join(p, 'being_Rsynced')) and done_make(p):
                 open(os.path.join(p, 'being_Rsynced'), 'w').close()
                 rsyncFile(p)
             elif os.path.exists(os.path.join(p, 'pageGen.txt')):
