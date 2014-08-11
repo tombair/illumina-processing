@@ -73,6 +73,9 @@ def illumina_directory_form(d):
 
 def process_sample_sheet(size, directory, csvFile):
     csvFileOut = directory + "/processedSampleSheet%s.csv" % (size, )
+    #check to see if already here
+    if os.path.exists(csvFileOut):
+        return None
     output_csv = open(csvFileOut, 'w')
     input_csv_fh = open(csvFile)
     header = input_csv_fh.readline()
@@ -89,9 +92,6 @@ def process_sample_sheet(size, directory, csvFile):
         line = line.replace('-', '_')
         line = line.replace(' ', '_')
         cols = line.split(',')
-        if len(cols) != 10:
-                logger.warn("Sample sheet has the wrong number of columns found %s looking for 10" %(len(cols),))
-                logger.warn(line)
         index_size = len(cols[4])
         if index_size == size:
             outputFlag = True
@@ -109,7 +109,7 @@ def process_sample_sheet(size, directory, csvFile):
 
 def run_sample_sheet(base_directory, size, sample_sheet):
     """
-Funtion to take directory path, size of index, and path to sample sheet. Runs the bclToFastq
+Function to take directory path, size of index, and path to sample sheet. Runs the bclToFastq
     :rtype : str:
     """
     output = os.path.join(base_directory, "Unaligned%s" % (size, ))
@@ -205,7 +205,7 @@ for d in dirs:
                             csvFound = process_sample_sheet(s, rtw, csv)
                             if csvFound is not None:
                                 logger.info(
-                                    "Found good sample sheet for size % running bclToFastQ for %s in %s" % (s, csvFound, d))
+                                    "Found good sample sheet for size %s running bclToFastQ for %s in %s" % (s, csvFound, d))
                                 #Found and wrote a particular size csvFile need to note it and get ready to run it
                                 try:
                                     proc = run_sample_sheet(rtw, s, csvFound)
@@ -219,7 +219,7 @@ for d in dirs:
                                 except Exception, e:
                                     logger.warn("Error on bcltoFastq %s" % (e, ))
                             else:
-                                    logger.warn("Did not find a single csv file in %s " % (rtw, ))
+                                    logger.warn("Did not find a single csv file in probably already ran %s " % (rtw, ))
 
             else:
                 logger.info("%s did not have all required files " %(d, ))
