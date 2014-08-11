@@ -33,6 +33,7 @@ def get_already_run(file_to_check):
     return ds
 
 def append_to_already_run(directory_path,done_file_path):
+    logger.info(("Writing directory %s to done file (%s) to prevent further starts " % (directory_path,done_file_path)))
     append_fh = open(done_file_path, "a")
     append_fh.write(directory_path)
     append_fh.write("\n")
