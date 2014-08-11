@@ -119,7 +119,6 @@ Function to take directory path, size of index, and path to sample sheet. Runs t
             ['/opt/illumina/bin/configureBclToFastq.pl', '--sample-sheet', sample_sheet, '--input-dir',
              base_directory + '/Data/Intensities/BaseCalls', '--output-dir', output, '--ignore-missing-bcl',
              '--ignore-missing-stat', '--fastq-cluster-count=0', "--use-bases-mask=y*,I%sN*,y*" % (size,)], stdout=subprocess.PIPE)
-        logger.info(bcl_process.communicate()[0])
     else:
         bcl_process = subprocess.Popen(
             ['/opt/illumina/bin/configureBclToFastq.pl', '--sample-sheet', sample_sheet, '--input-dir',
