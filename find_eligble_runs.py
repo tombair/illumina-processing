@@ -33,7 +33,6 @@ def get_already_run(file_to_check):
     return ds
 
 def append_to_already_run(directory_path,done_file_path):
-    logger.info(("Writing directory %s to done file (%s) to prevent further starts " % (directory_path,done_file_path)))
     append_fh = open(done_file_path, "a")
     append_fh.write(directory_path)
     append_fh.write("\n")
@@ -211,11 +210,14 @@ for d in dirs:
                                 try:
                                     proc = run_sample_sheet(rtw, s, csvFound)
                                     #write proc to dir to run makes on
+                                    logger.info(("Adding file %s to indexFilestoRun " % (proc,)))
+                                    print config.get('find_eligible_runs','output_file')
                                     output_fh = open(config.get('find_eligible_runs', 'output_file'), 'a')
                                     output_fh.write("%s\n" % (proc,))
                                     output_fh.close()
                                     count += 1
                                      #have linked the directory to the ready folder should now append it to the done file
+                                    logger.info(("Writing directory %s to done file (%s) to prevent further starts " % (d,done_directories)))
                                     append_to_already_run(d,done_directories)
                                 except Exception, e:
                                     logger.warn("Error on bcltoFastq %s" % (e, ))
