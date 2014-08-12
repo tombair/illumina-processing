@@ -144,7 +144,7 @@ def rsyncFile(d):
                 logger.info("This is a Stone run rsync directly to IVR %s " % (new_name_ssh,))
                 rsync_ret_code = subprocess.call("rsync -v -r %s %s" % (d, new_name_ssh), shell=True)
                 logger.info("rsync return code %s" % (rsync_ret_code,))
-    return True
+    return newName
 
 
 config = ConfigParser.SafeConfigParser()
@@ -177,12 +177,19 @@ if config.get('start_makes', 'locked') == 'False':
             if not os.path.exists(os.path.join(p, 'being_Maked')):
                 open(os.path.join(p, 'being_Maked'), 'w').close()
                 make_file(p)
-            elif not os.path.exists(os.path.join(p, 'being_Rsynced')) and done_make(p):
+            elif  os.path.exists(os.path.join(p, 'being_Rsynced')) and done_make(p):
                 open(os.path.join(p, 'being_Rsynced'), 'w').close()
-                rsyncFile(p)
-            elif os.path.exists(os.path.join(p, 'pageGen.txt')):
+                newname = rsyncFile(p)
+                fh = open(os.path.join(p,'newName'), 'w')
+                fh.write(newname)
+                fh.write('\n')
+                fh.close()
+            elif os.path.exists(os.path.join(p, 'newName')):
                 # pageGene should have been written by the ssh method called from rsyncFile --messy fixme
-                fh = open(os.path.join(p, 'pageGen.txt'), 'r')
+                fh = open(os.path.join(p, 'newName'), 'r')
+                newfhpath = fh.readlines()
+                fh.close()
+                fh = open(os.path.join(newfhpath, 'pageGen.txt'))
                 content = fh.readlines()
                 email(content)
                 addToDoneList(p)
