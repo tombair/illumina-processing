@@ -38,8 +38,14 @@ def in_progress_runs(array):
 
 def make_file(d):
     os.chdir(d)
-    return_value = subprocess.call("nohup make -j 8", shell=True)
-    logger.info("Started make it returned %s" % (return_value,))
+    p = subprocess.Popen(['make','-j','8'], stdout=subprocess.PIPE shell=True)
+    out, err = p.communicate()
+    fh = open("nohup.out", 'w')
+    for line in out:
+        fh.write(line)
+        fh.write('\n')
+    fh.close()
+    logger.info("Started make it returned %s" % (err, ) )
     return True
 
 
@@ -171,7 +177,7 @@ if config.get('start_makes', 'locked') == 'False':
             if not os.path.exists(os.path.join(p, 'being_Maked')):
                 open(os.path.join(p, 'being_Maked'), 'w').close()
                 make_file(p)
-            if not os.path.exists(os.path.join(p, 'being_Rsynced')) and done_make(p):
+            elif not os.path.exists(os.path.join(p, 'being_Rsynced')) and done_make(p):
                 open(os.path.join(p, 'being_Rsynced'), 'w').close()
                 rsyncFile(p)
             elif os.path.exists(os.path.join(p, 'pageGen.txt')):
