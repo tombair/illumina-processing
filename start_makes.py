@@ -103,7 +103,7 @@ def email(email_content):
     server.starttls()
     msg = "\r\n".join([
         "From: %s" %config.get('Globals','emailAddr'),
-        "To: %s" %conifig.get('Globals','emailSend'),
+        "To: %s" %config.get('Globals','emailSend'),
         "Subject: Script output",
         "",
         email_content
