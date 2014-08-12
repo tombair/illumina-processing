@@ -97,11 +97,19 @@ def addToDoneList(path_done):
     done.close()
 
 
-def email(content):
+def email(email_content):
     server = smtplib.SMTP('smtp.gmail.com:587')
+    server.ehlo()
     server.starttls()
+    msg = "\r\n".join([
+        "From: %s" %config.get('Globals','emailAddr'),
+        "To: %s" %conifig.get('Globals','emailSend'),
+        "Subject: Script output",
+        "",
+        email_content
+    ])
     server.login(config.get('Globals', 'emailAddr'), config.get('Globals', 'emailPasswd'))
-    server.sendmail(config.get('Globals', 'emailAddr'), config.get('Globals', 'emailSend'), content)
+    server.sendmail(config.get('Globals', 'emailAddr'), config.get('Globals', 'emailSend'), msg)
     server.quit()
 
 
