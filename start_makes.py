@@ -193,8 +193,8 @@ if config.get('start_makes', 'locked') == 'False':
                     fp = fp.strip('\n')
                     fh = open(os.path.join(fp, 'pageGen.txt'))
                     content = fh.readlines()
-                    email(content)
                     logger.info("Emailing done results %s " %(content,))
+                    email(content)
                     addToDoneList(p)
                 if os.path.islink(p):
                     os.remove(p)
