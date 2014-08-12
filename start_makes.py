@@ -38,7 +38,7 @@ def in_progress_runs(array):
 
 def make_file(d):
     os.chdir(d)
-    p = subprocess.Popen(['make','-j','8'], stdout=subprocess.PIPE shell=True)
+    p = subprocess.Popen(['make','-j','8'], stdout=subprocess.PIPE, shell=True)
     out, err = p.communicate()
     fh = open("nohup.out", 'w')
     for line in out:
