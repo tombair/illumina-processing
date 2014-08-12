@@ -195,8 +195,8 @@ if config.get('start_makes', 'locked') == 'False':
                     content = fh.readlines()
                     for c in content:
                         if c.startswith('INFO'):
-                        logger.info("Emailing done results %s " %(c,))
-                        email(c)
+                            logger.info("Emailing done results %s " %(c,))
+                            email(c)
                     addToDoneList(p)
                 if os.path.islink(p):
                     os.remove(p)
