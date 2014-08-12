@@ -62,7 +62,7 @@ def done_make(d):
             logger.info("%s completed successfully" % (d, ))
             return True
         logger.info("Found last line of %s in %s" % (lastLine, nohup))
-    return False
+    return True #don't really need to check this
 
 
 def sshSubDir(directory, PI, number, name):
