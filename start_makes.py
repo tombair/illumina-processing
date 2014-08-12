@@ -177,7 +177,7 @@ if config.get('start_makes', 'locked') == 'False':
             if not os.path.exists(os.path.join(p, 'being_Maked')):
                 open(os.path.join(p, 'being_Maked'), 'w').close()
                 make_file(p)
-            elif  os.path.exists(os.path.join(p, 'being_Rsynced')) and done_make(p):
+            elif not os.path.exists(os.path.join(p, 'being_Rsynced')) and done_make(p):
                 open(os.path.join(p, 'being_Rsynced'), 'w').close()
                 newname = rsyncFile(p)
                 fh = open(os.path.join(p,'newName'), 'a')
@@ -194,6 +194,7 @@ if config.get('start_makes', 'locked') == 'False':
                     fh = open(os.path.join(fp, 'pageGen.txt'))
                     content = fh.readlines()
                     email(content)
+                    logger.info("Emailing done results %s " %(content,))
                     addToDoneList(p)
                 if os.path.islink(p):
                     os.remove(p)
