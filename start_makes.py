@@ -205,7 +205,7 @@ if config.get('start_makes', 'locked') == 'False':
                 open(os.path.join(p, 'being_Maked'), 'w').close()
                 make_file(p)
                 open(os.path.join(p, 'done_Maked'), 'w').close()
-            elif not os.path.exists(os.path.join(p, 'being_Rsynced')) and os.path.exists(os.path.join(p, 'done_Maked')):
+            if not os.path.exists(os.path.join(p, 'being_Rsynced')) and os.path.exists(os.path.join(p, 'done_Maked')):
                 open(os.path.join(p, 'being_Rsynced'), 'w').close()
                 newname = rsyncFile(p)
                 open(os.path.join(p, 'done_Rsynced'), 'w').close()
@@ -213,11 +213,11 @@ if config.get('start_makes', 'locked') == 'False':
                 fh.write(newname)
                 fh.write('\n')
                 fh.close()
-            elif not os.path.exists(os.path.join(p, 'being_Rsynced_2')) and os.path.exists(os.path.join(p,'done_Rsynced')):
+            if not os.path.exists(os.path.join(p, 'being_Rsynced_2')) and os.path.exists(os.path.join(p,'done_Rsynced')):
                 open(os.path.join(p, 'being_Rsynced_2'), 'w').close()
                 newname = rsyncFile(p)
                 open(os.path.join(p, 'done_Rsynced_2'), 'w').close()
-            elif os.path.exists(os.path.join(p, 'newName')) and os.path.exists(os.path.join(p,'done_Rsynced_2')) :
+            if os.path.exists(os.path.join(p, 'newName')) and os.path.exists(os.path.join(p,'done_Rsynced_2')) :
                 fh = open(os.path.join(p, 'newName'), 'r')
                 newfhpath = fh.readlines()
                 fh.close()
