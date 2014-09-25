@@ -213,7 +213,7 @@ if config.get('start_makes', 'locked') == 'False':
                 fh.write(newname)
                 fh.write('\n')
                 fh.close()
-            elif not os.path.exists(os.path.join(p, 'being_Rsynced_2') and os.path.exists(os.path.join(p,'done_Rsynced'))):
+            elif not os.path.exists(os.path.join(p, 'being_Rsynced_2')) and os.path.exists(os.path.join(p,'done_Rsynced')):
                 open(os.path.join(p, 'being_Rsynced_2'), 'w').close()
                 newname = rsyncFile(p)
                 open(os.path.join(p, 'done_Rsynced_2'), 'w').close()
