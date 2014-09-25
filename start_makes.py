@@ -96,6 +96,20 @@ def addToDoneList(path_done):
     done.write(path_done)
     done.close()
 
+def email_Adam(d):
+    server = smtplib.SMTP('smtp.gmail.com:587')
+    server.ehlo()
+    server.starttls()
+    msg = "\r\n".join([
+        "From: %s" %config.get('Globals','emailAddr'),
+        "To: %s" % 'adam-deluca@uiowa.edu',
+        "Subject: Script output",
+        "",
+        'rsync has started for ' % d
+    ])
+    server.login(config.get('Globals', 'emailAddr'), config.get('Globals', 'emailPasswd'))
+    server.sendmail(config.get('Globals', 'emailAddr'), config.get('Globals', 'emailSend'), msg)
+    server.quit()
 
 def email(email_content):
     server = smtplib.SMTP('smtp.gmail.com:587')
@@ -112,6 +126,19 @@ def email(email_content):
     server.sendmail(config.get('Globals', 'emailAddr'), config.get('Globals', 'emailSend'), msg)
     server.quit()
 
+def figure_id(project_name):
+    basename = os.path.basename(project_name)
+    parts = basename.split('_')
+    pi = parts[1]
+    id_number = parts[-1]
+    return {'pi':pi,'id':id_number}
+
+def makelinks(d):
+    d_info = figure_id(d)
+    newNameBase = "%s-%s_%s_%s" % (datetime.utcnow().strftime("%Y%m%d"), plateID, d_info['pi'], d_info['id'])
+    newName = os.path.join(destPlace, newNameBase)
+    logger.info("Setting up output html %s,%s,%s,%s " % (d, d_info['pi'], d_info['id'], newNameBase))
+    sshSubDir(newName, pi, number, newNameBase)
 
 def rsyncFile(d):
     # get list of directories
@@ -123,35 +150,27 @@ def rsyncFile(d):
     for d in dirs:
         if os.path.isdir(d):
             #need to chop up the file name to figure out where to rsync to
-            basename = os.path.basename(d)
-            parts = basename.split('_')
-            pi = parts[1]
-            number = int(parts[-1])
+            d_info = figure_id(d)
             #construct new path
-            newNameBase = "%s-%s_%s_%s" % (datetime.utcnow().strftime("%Y%m%d"), plateID, pi, number)
+            newNameBase = "%s-%s_%s_%s" % (datetime.utcnow().strftime("%Y%m%d"), plateID, d_info['pi'], d_info['id'])
             newName = os.path.join(destPlace, newNameBase)
             logger.info("Rsyncing to %s " % (newName,))
             if not os.path.exists(newName):
                     os.makedirs(newName)
-            #shouldn't need this but leaving it here as a note rsync should handle writing under this
-            #while os.path.exists(newName):
-            #    logger.warn("Detected name collision before rysnc with %s " % (newName,))
-            #    newName = os.path.join(newName, newNameBase)
-            if int(number) > 100:
+            if int(d_info['id']) > 100:
                 logger.info("Started rsync %s " % (newName,))
                 rsync_ret_code= subprocess.call("rsync -v -r -u %s %s" % (d, newName), shell=True)
                 if rsync_ret_code > 0:
                         logger.warn("rsync ret code failed %s" % (rsync_ret_code, ))
                         logger.warn("Tried rsyncing  %s to %s " % (d, newName))
                 logger.info("Finished rsync %s to %s " % (d, newName))
-                logger.info("Setting up output html %s,%s,%s,%s " % (d, pi, number, newNameBase))
-                time.sleep(10)  # give time for rsync to start making directories
-                sshSubDir(newName, pi, number, newNameBase)
-            if int(number) < 1:
+
+            if int(d_info['id']) < 1:
                 new_name_ssh = "helium.hpc.uiowa.edu:/Shared/IVR/" + newNameBase
                 logger.info("This is a Stone run rsync directly to IVR %s " % (new_name_ssh,))
                 rsync_ret_code = subprocess.call("rsync -v -r %s %s" % (d, new_name_ssh), shell=True)
                 logger.info("rsync return code %s" % (rsync_ret_code,))
+                email_Adam(d)
     return newName
 
 
@@ -185,15 +204,20 @@ if config.get('start_makes', 'locked') == 'False':
             if not os.path.exists(os.path.join(p, 'being_Maked')):
                 open(os.path.join(p, 'being_Maked'), 'w').close()
                 make_file(p)
-            elif not os.path.exists(os.path.join(p, 'being_Rsynced')) and done_make(p):
+                open(os.path.join(p, 'done_Maked'), 'w').close()
+            elif not os.path.exists(os.path.join(p, 'being_Rsynced')) and os.path.exists(os.path.join(p, 'done_Maked')):
                 open(os.path.join(p, 'being_Rsynced'), 'w').close()
                 newname = rsyncFile(p)
+                open(os.path.join(p, 'done_Rsynced'), 'w').close()
                 fh = open(os.path.join(p,'newName'), 'a')
                 fh.write(newname)
                 fh.write('\n')
                 fh.close()
-            elif os.path.exists(os.path.join(p, 'newName')):
-                # pageGene should have been written by the ssh method called from rsyncFile --messy fixme
+            elif not os.path.exists(os.path.join(p, 'being_Rsynced_2') and os.path.exists(os.path.join(p,'done_Rsynced'))):
+                open(os.path.join(p, 'being_Rsynced_2'), 'w').close()
+                newname = rsyncFile(p)
+                open(os.path.join(p, 'done_Rsynced_2'), 'w').close()
+            elif os.path.exists(os.path.join(p, 'newName')) and os.path.exists(os.path.join(p,'done_Rsynced_2')) :
                 fh = open(os.path.join(p, 'newName'), 'r')
                 newfhpath = fh.readlines()
                 fh.close()
