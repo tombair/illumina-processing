@@ -221,6 +221,7 @@ if config.get('start_makes', 'locked') == 'False':
                 fh = open(os.path.join(p, 'newName'), 'r')
                 newfhpath = fh.readlines()
                 fh.close()
+
                 for fp in newfhpath:
                     fp = fp.strip('\n')
                     if os.path.exists((os.path.join(fp,'pageGen.txt'))):
