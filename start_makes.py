@@ -223,15 +223,16 @@ if config.get('start_makes', 'locked') == 'False':
                 fh.close()
                 for fp in newfhpath:
                     fp = fp.strip('\n')
-                    fh = open(os.path.join(fp, 'pageGen.txt'))
-                    content = fh.readlines()
-                    for c in content:
-                        if c.startswith('INFO'):
-                            logger.info("Emailing done results %s " %(c,))
-                            email(c)
-                    addToDoneList(p)
-                if os.path.islink(p):
-                    os.remove(p)
+                    if os.path.exists((os.path.join(fp,'pageGen.txt'))):
+                        fh = open(os.path.join(fp, 'pageGen.txt'))
+                        content = fh.readlines()
+                        for c in content:
+                            if c.startswith('INFO'):
+                                logger.info("Emailing done results %s " %(c,))
+                                email(c)
+                        addToDoneList(p)
+                    if os.path.islink(p):
+                        os.remove(p)
                 done = True
         if not done:
             notDone.append(p)
