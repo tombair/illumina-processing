@@ -136,7 +136,8 @@ def figure_id(project_name):
 def makelinks(d):
     d_info = figure_id(d)
     logger.info("Setting up output html %s,%s,%s " % (d, d_info['pi'], d_info['id']))
-    sshSubDir(d, d_info['pi'], d_info['id'], d)
+    base = os.path.basename(d)
+    sshSubDir(d, d_info['pi'], d_info['id'], base)
 
 def rsyncFile(d):
     # get list of directories
