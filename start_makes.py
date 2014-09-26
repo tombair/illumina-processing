@@ -219,21 +219,21 @@ if config.get('start_makes', 'locked') == 'False':
                 open(os.path.join(p, 'done_Rsynced_2'), 'w').close()
             if os.path.exists(os.path.join(p, 'newName')) and os.path.exists(os.path.join(p,'done_Rsynced_2')) :
                 fh = open(os.path.join(p, 'newName'), 'r')
-                newfhpath = fh.readlines()
-                fh.close()
-
-                for fp in newfhpath:
+                for fp in fh:
                     fp = fp.strip('\n')
+                    logger.info('Looking for %s' %fp)
                     if os.path.exists((os.path.join(fp,'pageGen.txt'))):
-                        fh = open(os.path.join(fp, 'pageGen.txt'))
-                        content = fh.readlines()
-                        for c in content:
-                            if c.startswith('INFO'):
-                                logger.info("Emailing done results %s " %(c,))
-                                email(c)
-                        addToDoneList(p)
-                    if os.path.islink(p):
-                        os.remove(p)
+                        makelinks(fp)
+                        if os.path.exists(os.path.join(fp,'pageGen.txt')):
+                            fh = open(os.path.join(fp, 'pageGen.txt'))
+                            content = fh.readlines()
+                            for c in content:
+                                if c.startswith('INFO'):
+                                    logger.info("Emailing done results %s " %(c,))
+                                    email(c)
+                            addToDoneList(p)
+                        if os.path.islink(p):
+                            os.remove(p)
                 done = True
         if not done:
             notDone.append(p)
