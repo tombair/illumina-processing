@@ -222,7 +222,7 @@ if config.get('start_makes', 'locked') == 'False':
                 for fp in fh:
                     fp = fp.strip('\n')
                     logger.info('Looking for %s' %fp)
-                    if os.path.exists((os.path.join(fp,'pageGen.txt'))):
+                    if not os.path.exists((os.path.join(fp,'pageGen.txt'))):
                         makelinks(fp)
                         if os.path.exists(os.path.join(fp,'pageGen.txt')):
                             fh = open(os.path.join(fp, 'pageGen.txt'))
