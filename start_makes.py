@@ -220,19 +220,20 @@ if config.get('start_makes', 'locked') == 'False':
                 fh = open(os.path.join(p, 'newName'), 'r')
                 for fp in fh:
                     fp = fp.strip('\n')
-                    logger.info('Looking for %s' %fp)
-                    if not os.path.exists((os.path.join(fp,'pageGen.txt'))):
-                        makelinks(fp)
-                        if os.path.exists(os.path.join(fp,'pageGen.txt')):
-                            fh = open(os.path.join(fp, 'pageGen.txt'))
-                            content = fh.readlines()
-                            for c in content:
-                                if c.startswith('INFO'):
-                                    logger.info("Emailing done results %s " %(c,))
-                                    email(c)
-                            addToDoneList(p)
-                        if os.path.islink(p):
-                            os.remove(p)
+                    if len(fp)>1:
+                        logger.info('Looking for %s' %fp)
+                        if not os.path.exists((os.path.join(fp,'pageGen.txt'))):
+                            makelinks(fp)
+                            if os.path.exists(os.path.join(fp,'pageGen.txt')):
+                                fh = open(os.path.join(fp, 'pageGen.txt'))
+                                content = fh.readlines()
+                                for c in content:
+                                    if c.startswith('INFO'):
+                                        logger.info("Emailing done results %s " %(c,))
+                                        email(c)
+                                addToDoneList(p)
+                            if os.path.islink(p):
+                                os.remove(p)
                 done = True
         if not done:
             notDone.append(p)
