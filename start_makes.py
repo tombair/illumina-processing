@@ -135,7 +135,7 @@ def figure_id(project_name):
 
 def makelinks(d):
     d_info = figure_id(d)
-    newNameBase = "%s-%s_%s_%s" % (datetime.utcnow().strftime("%Y%m%d"), plateID, d_info['pi'], d_info['id'])
+    newNameBase = "%s-%s_%s" % (datetime.utcnow().strftime("%Y%m%d"), d_info['pi'], d_info['id'])
     newName = os.path.join(destPlace, newNameBase)
     logger.info("Setting up output html %s,%s,%s,%s " % (d, d_info['pi'], d_info['id'], newNameBase))
     sshSubDir(newName, pi, number, newNameBase)
