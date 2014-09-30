@@ -105,7 +105,7 @@ def email_Adam(d):
         "To: %s" % 'adam-deluca@uiowa.edu',
         "Subject: Script output",
         "",
-        'rsync has started for ' % d
+        "rsync has started for %s " % (d,)
     ])
     server.login(config.get('Globals', 'emailAddr'), config.get('Globals', 'emailPasswd'))
     server.sendmail(config.get('Globals', 'emailAddr'), config.get('Globals', 'emailSend'), msg)
