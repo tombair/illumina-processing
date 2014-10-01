@@ -195,6 +195,8 @@ if config.get('start_makes', 'locked') == 'False':
     logger.info("See %s possible runs to process" % (len(pr)))
     notDone = []
     for p in pr:
+        if len(p) <= 2:
+            continue
         done = False
         logger.info("Looking at %s " % (p,))
         if os.getloadavg()[0] > int(config.get('start_makes', 'maxload')):
