@@ -157,20 +157,17 @@ def rsyncFile(d):
                     os.makedirs(newName)
             if int(d_info['id']) > 100:
                 logger.info("Started rsync %s " % (newName,))
-                rsync_ret_code= subprocess.call("rsync -v -r -u %s %s" % (d, newName), shell=True)
-                if rsync_ret_code > 0:
-                        logger.warn("rsync ret code failed %s" % (rsync_ret_code, ))
-                        logger.warn("Tried rsyncing  %s to %s " % (d, newName))
+                rsync_ret_code= subprocess.Popen("rsync -v -r -u %s %s" % (d, newName), shell=True)
                 logger.info(rsync_ret_code.communicate()[0])
                 logger.info("Finished rsync %s to %s " % (d, newName))
 
             if int(d_info['id']) < 1:
+                email_Adam(d)
                 new_name_ssh = "helium.hpc.uiowa.edu:/Shared/IVR/" + newNameBase
                 logger.info("This is a Stone run rsync directly to IVR %s " % (new_name_ssh,))
-                rsync_ret_code = subprocess.call("rsync -v -r %s %s" % (d, new_name_ssh), shell=True)
+                rsync_ret_code = subprocess.Popen("rsync -v -r %s %s" % (d, new_name_ssh), shell=True)
                 logger.info(rsync_ret_code.communicate()[0])
-                logger.info("rsync return code %s" % (rsync_ret_code,))
-                email_Adam(d)
+
     return newName
 
 
