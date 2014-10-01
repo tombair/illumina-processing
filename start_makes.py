@@ -43,7 +43,6 @@ def make_file(d):
     fh = open("nohup.out", 'w')
     for line in out:
         fh.write(line)
-        fh.write('\n')
     fh.close()
     logger.info("Started make it returned %s" % (err, ) )
     return True
@@ -162,12 +161,14 @@ def rsyncFile(d):
                 if rsync_ret_code > 0:
                         logger.warn("rsync ret code failed %s" % (rsync_ret_code, ))
                         logger.warn("Tried rsyncing  %s to %s " % (d, newName))
+                logger.info(rsync_ret_code.communicate()[0])
                 logger.info("Finished rsync %s to %s " % (d, newName))
 
             if int(d_info['id']) < 1:
                 new_name_ssh = "helium.hpc.uiowa.edu:/Shared/IVR/" + newNameBase
                 logger.info("This is a Stone run rsync directly to IVR %s " % (new_name_ssh,))
                 rsync_ret_code = subprocess.call("rsync -v -r %s %s" % (d, new_name_ssh), shell=True)
+                logger.info(rsync_ret_code.communicate()[0])
                 logger.info("rsync return code %s" % (rsync_ret_code,))
                 email_Adam(d)
     return newName
@@ -212,9 +213,14 @@ if config.get('start_makes', 'locked') == 'False':
                 fh.write(newname)
                 fh.write('\n')
                 fh.close()
-            if not os.path.exists(os.path.join(p, 'being_Rsynced_2')) and os.path.exists(os.path.join(p,'done_Rsynced')):
+            if not os.path.exists(os.path.join(p, 'being_Rsynced_2')) and os.path.exists(os.path.join(p,'being_Rsynced')):
                 open(os.path.join(p, 'being_Rsynced_2'), 'w').close()
                 newname = rsyncFile(p)
+                if not os.path.exisits(os.path.join(p,'newName')):
+                    fh = open(os.path.join(p,'newName'), 'a')
+                    fh.write(newname)
+                    fh.write('\n')
+                    fh.close()
                 open(os.path.join(p, 'done_Rsynced_2'), 'w').close()
             if os.path.exists(os.path.join(p, 'newName')) and os.path.exists(os.path.join(p,'done_Rsynced_2')) :
                 fh = open(os.path.join(p, 'newName'), 'r')
