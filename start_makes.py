@@ -133,7 +133,7 @@ def getNewName(project_directory):
         assert os.path.exists(os.path.join(project_directory,"newFileName.txt"))
     except AssertionError, e:
         logger.warn("newFileName.txt not found in %s" %(project_directory))
-    fh = open(os.path.exists(os.path.join(project_directory,"newFileName.txt")))
+    fh = open(os.path.join(project_directory,"newFileName.txt"))
     newFile = fh.readline().strip('\n')
     try:
         assert len(newFile) > 1
@@ -261,7 +261,7 @@ if config.get('start_makes', 'locked') == 'False':
                 open(os.path.join(p, 'done_Maked'), 'w').close()
             if not os.path.exists(os.path.join(p, 'done_Rsynced')) and os.path.exists(os.path.join(p, 'done_Maked')):
                 open(os.path.join(p, 'being_Rsynced'), 'w').close()
-                newname = rsyncFile(p)
+                rsyncFile(p)
                 open(os.path.join(p, 'done_Rsynced'), 'w').close()
             if not os.path.exists(os.path.join(p,'links_done')) and os.path.exists(os.path.join(p,'done_Rsynced')):
                 makeLinks(p)
