@@ -180,7 +180,7 @@ def checkEmailLinks(original_directory):
             logger.warn("Cannot find new project directory %s " %(new_project_directory,))
 
         if os.path.exists(os.path.join(new_project_directory,'pageGen.txt')):
-            fh = open(os.path.join(proj_dir, 'pageGen.txt'))
+            fh = open(os.path.join(new_project_directory, 'pageGen.txt'))
             content = fh.readlines()
             for c in content:
                 if c.startswith('INFO'):
