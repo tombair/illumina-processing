@@ -205,7 +205,7 @@ def rsyncFile(original_directory):
             assert os.path.isdir(proj_dir)
         except AssertionError, e:
             logger.warn("Cannot find project directory %s " %(proj_dir,))
-        d_info = figure_id(original_directory)
+        d_info = figure_id(proj_dir)
         newNameBase = getNewName(proj_dir)
         newName = os.path.join(destPlace, newNameBase)
         logger.info("Rsyncing to %s " % (newName,))
