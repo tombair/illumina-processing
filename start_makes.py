@@ -266,6 +266,7 @@ if config.get('start_makes', 'locked') == 'False':
                 rsyncFile(p)
                 open(os.path.join(p, 'done_Rsynced'), 'w').close()
             if not os.path.exists(os.path.join(p,'links_done')) and os.path.exists(os.path.join(p,'done_Rsynced')):
+                open(os.path.join(p, 'being_Linked'), 'w').close()
                 makeLinks(p)
                 emailed = checkEmailLinks(p)
                 if emailed:
