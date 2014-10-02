@@ -36,20 +36,16 @@ def in_progress_runs(array):
         ipr_fh.write('\n')
 
 
-def make_file(d):
-    os.chdir(d)
-    p = subprocess.Popen(['make','-j','8'], stdout=subprocess.PIPE, shell=True)
+def make_file(original_directory):
+    os.chdir(original_directory)
+    p = subprocess.Popen(['nohup','make','-j','8'], stdout=subprocess.PIPE, shell=True)
     out, err = p.communicate()
-    fh = open("nohup.out", 'w')
-    for line in out:
-        fh.write(line)
-    fh.close()
     logger.info("Started make it returned %s" % (err, ) )
     return True
 
 
-def done_make(d):
-    nohup = os.path.join(d, 'nohup.out')
+def done_make(original_directory):
+    nohup = os.path.join(original_directory, 'nohup.out')
     if not os.path.exists(nohup):
         logger.warn("expected nohup file missing in %s " % (nohup, ))
     else:
@@ -58,13 +54,13 @@ def done_make(d):
         lastLine = lastLine.strip('\n')
         cols = lastLine.split('\t')
         if cols is not None and len(cols) >= 4 and cols[3] == 'INFO: all completed successfully.':
-            logger.info("%s completed successfully" % (d, ))
+            logger.info("%s completed successfully" % (original_directory, ))
             return True
         logger.info("Found last line of %s in %s" % (lastLine, nohup))
-    return True #don't really need to check this
+    return True
 
 
-def sshSubDir(directory, PI, number, name):
+def sshSubDir(new_project_directory, PI, number, newName):
     # ssh command generation
     sshCmd = [config.get('start_makes', 'pageGenPath')]
     sshUrl = config.get('start_makes', 'pageGenHost')
@@ -76,12 +72,12 @@ def sshSubDir(directory, PI, number, name):
     chars = string.ascii_lowercase + string.digits
     randLet = ''.join([random.choice(chars) for x in range(6)])
     sshCmd.append(randLet + PI.lower())
-    sshCmd.append(directory)
+    sshCmd.append(new_project_directory)
     htmlDir = config.get('start_makes', 'pageGenhtml')
-    htmlDir += "/%s" % (name, )
+    htmlDir += "/%s" % (newName, )
     sshCmd.append(htmlDir)
     sshCmd.append('>>')
-    sshCmd.append(os.path.join(directory, 'pageGen.txt'))
+    sshCmd.append(os.path.join(new_project_directory, 'pageGen.txt'))
     sshCmdStr = " ".join(sshCmd)
     logger.info(sshCmdStr)
     # need to collect the std out from this command to get the username and password
@@ -89,13 +85,13 @@ def sshSubDir(directory, PI, number, name):
     logger.info("ssh return value %s " % (pid.communicate()[0], ))
 
 
-def addToDoneList(path_done):
+def addToDoneList(original_directory):
     # need to append to done list
     done = open(config.get('Globals', 'doneIgnore'), 'a')
-    done.write(path_done)
+    done.write(original_directory)
     done.close()
 
-def email_Adam(d):
+def email_Adam(project_directory):
     server = smtplib.SMTP('smtp.gmail.com:587')
     server.ehlo()
     server.starttls()
@@ -104,10 +100,10 @@ def email_Adam(d):
         "To: %s" % 'adam-deluca@uiowa.edu',
         "Subject: Script output",
         "",
-        "rsync has started for %s " % (d,)
+        "rsync has started for %s " % (project_directory,)
     ])
     server.login(config.get('Globals', 'emailAddr'), config.get('Globals', 'emailPasswd'))
-    server.sendmail(config.get('Globals', 'emailAddr'), config.get('Globals', 'emailSend'), msg)
+    server.sendmail(config.get('Globals', 'emailAddr'), 'adam-deluca@uiowa.edu', msg)
     server.quit()
 
 def email(email_content):
@@ -125,50 +121,109 @@ def email(email_content):
     server.sendmail(config.get('Globals', 'emailAddr'), config.get('Globals', 'emailSend'), msg)
     server.quit()
 
-def figure_id(project_name):
-    basename = os.path.basename(project_name)
+def figure_id(project_directory):
+    basename = os.path.basename(project_directory)
     parts = basename.split('_')
     pi = parts[1]
     id_number = parts[-1]
     return {'pi':pi,'id':id_number}
 
-def makelinks(d):
-    d_info = figure_id(d)
-    logger.info("Setting up output html %s,%s,%s " % (d, d_info['pi'], d_info['id']))
-    base = os.path.basename(d)
-    sshSubDir(d, d_info['pi'], d_info['id'], base)
+def getNewName(project_directory):
+    try:
+        assert os.path.exists(os.path.join(project_directory,"newFileName.txt"))
+    except AssertionError, e:
+        logger.warn("newFileName.txt not found in %s" %(project_directory))
+    fh = open(os.path.exists(os.path.join(project_directory,"newFileName.txt")))
+    newFile = fh.readline().strip('\n')
+    try:
+        assert len(newFile) > 1
+    except AssertionError, e:
+            logger.warn("newFileName.txt present but empty in %s " %(project_directory,))
+    return newFile
 
-def rsyncFile(d):
+def makeLinks(original_directory):
     # get list of directories
-    dirs = glob.glob(d + "/Project*")
-    # need to get the plate id to prevent later name collisions
-    print os.path.basename(os.path.dirname(d))
-    plateID = os.path.basename(os.path.dirname(d)).split('_')[2]
+    dirs = glob.glob(original_directory + "/Project*")
+    plateID = os.path.basename(os.path.dirname(original_directory)).split('_')[2]
     destPlace = config.get('Globals', 'OutDirectory')
-    for d in dirs:
-        if os.path.isdir(d):
-            #need to chop up the file name to figure out where to rsync to
-            d_info = figure_id(d)
-            #construct new path
-            newNameBase = "%s-%s_%s_%s" % (datetime.utcnow().strftime("%Y%m%d"), plateID, d_info['pi'], d_info['id'])
-            newName = os.path.join(destPlace, newNameBase)
-            logger.info("Rsyncing to %s " % (newName,))
+    for proj_dir in dirs:
+        if os.path.exists(os.path.join(proj_dir,"newFileName.txt")):
+            newName = getNewName(proj_dir)
+            d_info = figure_id(proj_dir)
+            new_project_directory = os.path.join(destPlace,newName)
+            try:
+                assert os.path.exists(new_project_directory)
+            except AssertionError, e:
+                logger.warn("Cannot find new project directory %s " %(new_project_directory,))
+            logger.info("Setting up output html %s,%s,%s " % (new_project_directory, d_info['pi'], d_info['id']))
+            sshSubDir(new_project_directory, d_info['pi'], d_info['id'], newName)
+        else:
+            logger.warn("newFileName.txt not found in "%(proj_dir))
+
+def checkEmailLinks(original_directory):
+    dirs = glob.glob(original_directory + "/Project*")
+    destPlace = config.get('Globals', 'OutDirectory')
+    flag = True
+    for proj_dir in dirs:
+        newName = getNewName(proj_dir)
+        new_project_directory = os.path.join(destPlace,newName)
+        try:
+            assert os.path.exists(new_project_directory)
+        except AssertionError, e:
+            logger.warn("Cannot find new project directory %s " %(new_project_directory,))
+
+        if os.path.exists(os.path.join(new_project_directory,'pageGen.txt')):
+            fh = open(os.path.join(proj_dir, 'pageGen.txt'))
+            content = fh.readlines()
+            for c in content:
+                if c.startswith('INFO'):
+                    logger.info("Emailing done results %s " %(c,))
+                    email(c)
+        else:
+                flag = False
+    return flag
+
+def createNewName(project_directory,plateID):
+    #construct new path
+    if not os.path.exists(os.path.join(project_directory,"newFileName.txt")):
+        d_info = figure_id(project_directory)
+        newNameBase = "%s-%s_%s_%s" % (datetime.utcnow().strftime("%Y%m%d"), plateID, d_info['pi'], d_info['id'])
+        fh = open (os.path.join(project_directory,"newFileName.txt"),'w')
+        fh.write(newNameBase)
+        fh.close()
+
+def rsyncFile(original_directory):
+    # get list of directories
+    dirs = glob.glob(original_directory + "/Project*")
+    print os.path.basename(os.path.dirname(original_directory))
+    plateID = os.path.basename(os.path.dirname(original_directory)).split('_')[2]
+    destPlace = config.get('Globals', 'OutDirectory')
+    for proj_dir in dirs:
+            createNewName (proj_dir,plateID)
+    for proj_dir in dirs:
+        try:
+            assert os.path.isdir(proj_dir)
+        except AssertionError, e:
+            logger.warn("Cannot find project directory %s " %(proj_dir,))
+        d_info = figure_id(original_directory)
+        newNameBase = getNewName(proj_dir)
+        newName = os.path.join(destPlace, newNameBase)
+        logger.info("Rsyncing to %s " % (newName,))
+        if int(d_info['id']) > 100:
             if not os.path.exists(newName):
-                    os.makedirs(newName)
-            if int(d_info['id']) > 100:
-                logger.info("Started rsync %s " % (newName,))
-                rsync_ret_code= subprocess.Popen("rsync -v -r -u %s %s" % (d, newName), shell=True)
-                logger.info(rsync_ret_code.communicate()[0])
-                logger.info("Finished rsync %s to %s " % (d, newName))
+                os.makedirs(newName)
+            logger.info("Started rsync %s " % (newName,))
+            rsync_ret_code= subprocess.Popen("rsync -v -r -u %s %s" % (original_directory, newName), shell=True)
+            logger.info(rsync_ret_code.communicate()[0])
+            logger.info("Finished rsync %s to %s " % (original_directory, newName))
 
-            if int(d_info['id']) < 1:
-                email_Adam(d)
-                new_name_ssh = "helium.hpc.uiowa.edu:/Shared/IVR/" + newNameBase
-                logger.info("This is a Stone run rsync directly to IVR %s " % (new_name_ssh,))
-                rsync_ret_code = subprocess.Popen("rsync -v -r %s %s" % (d, new_name_ssh), shell=True)
-                logger.info(rsync_ret_code.communicate()[0])
+        if int(d_info['id']) < 1:
+            email_Adam(original_directory)
+            new_name_ssh = "helium.hpc.uiowa.edu:/Shared/IVR/" + newNameBase
+            logger.info("This is a Stone run rsync directly to IVR %s " % (new_name_ssh,))
+            rsync_ret_code = subprocess.Popen("rsync -v -r %s %s" % (original_directory, new_name_ssh), shell=True)
+            logger.info(rsync_ret_code.communicate()[0])
 
-    return newName
 
 
 config = ConfigParser.SafeConfigParser()
@@ -204,45 +259,19 @@ if config.get('start_makes', 'locked') == 'False':
                 open(os.path.join(p, 'being_Maked'), 'w').close()
                 make_file(p)
                 open(os.path.join(p, 'done_Maked'), 'w').close()
-            if not os.path.exists(os.path.join(p, 'being_Rsynced')) and os.path.exists(os.path.join(p, 'done_Maked')):
+            if not os.path.exists(os.path.join(p, 'done_Rsynced')) and os.path.exists(os.path.join(p, 'done_Maked')):
                 open(os.path.join(p, 'being_Rsynced'), 'w').close()
                 newname = rsyncFile(p)
                 open(os.path.join(p, 'done_Rsynced'), 'w').close()
-                fh = open(os.path.join(p,'newName'), 'a')
-                fh.write(newname)
-                fh.write('\n')
-                fh.close()
-            if not os.path.exists(os.path.join(p, 'being_Rsynced_2')) and os.path.exists(os.path.join(p,'being_Rsynced')):
-                open(os.path.join(p, 'being_Rsynced_2'), 'w').close()
-                newname = rsyncFile(p)
-                if not os.path.exists(os.path.join(p,'newName')):
-                    fh = open(os.path.join(p,'newName'), 'a')
-                    fh.write(newname)
-                    fh.write('\n')
-                    fh.close()
-                open(os.path.join(p, 'done_Rsynced_2'), 'w').close()
-            if os.path.exists(os.path.join(p, 'newName')) and os.path.exists(os.path.join(p,'done_Rsynced_2')) :
-                fh = open(os.path.join(p, 'newName'), 'r')
-                for fp in fh:
-                    fp = fp.strip('\n')
-                    if len(fp)>1:
-                        logger.info('Looking for %s' %fp)
-                        if not os.path.exists((os.path.join(fp,'pageGen.txt'))):
-                            makelinks(fp)
-                            if os.path.exists(os.path.join(fp,'pageGen.txt')):
-                                fh = open(os.path.join(fp, 'pageGen.txt'))
-                                content = fh.readlines()
-                                for c in content:
-                                    if c.startswith('INFO'):
-                                        logger.info("Emailing done results %s " %(c,))
-                                        email(c)
-                                addToDoneList(p)
-                            if os.path.islink(p):
-                                os.remove(p)
-                done = True
+            if not os.path.exists(os.path.join(p,'links_done')) and os.path.exists(os.path.join(p,'done_Rsynced')):
+                makeLinks(p)
+                emailed = checkEmailLinks(p)
+                if emailed:
+                    if os.path.islink(p):
+                        os.remove(p)
+                    done = True
         if not done:
             notDone.append(p)
-
     in_progress_runs(notDone)
     config.set('start_makes', 'locked', 'False')
 else:
