@@ -209,14 +209,12 @@ def rsyncFile(original_directory):
         newNameBase = getNewName(proj_dir)
         newName = os.path.join(destPlace, newNameBase)
         logger.info("Rsyncing to %s " % (newName,))
-        if int(d_info['id']) > 100:
-            if not os.path.exists(newName):
-                os.makedirs(newName)
-            logger.info("Started rsync from %s to %s " % (proj_dir,newName,))
-            rsync_ret_code= subprocess.Popen("rsync -v -r -u %s %s" % (proj_dir, newName), shell=True)
-            logger.info(rsync_ret_code.communicate()[0])
-            logger.info("Finished rsync %s to %s " % (proj_dir, newName))
-
+        if not os.path.exists(newName):
+            os.makedirs(newName)
+        logger.info("Started rsync from %s to %s " % (proj_dir,newName,))
+        rsync_ret_code= subprocess.Popen("rsync -v -r -u %s %s" % (proj_dir, newName), shell=True)
+        logger.info(rsync_ret_code.communicate()[0])
+        logger.info("Finished rsync %s to %s " % (proj_dir, newName))
         if int(d_info['id']) < 1:
             email_Adam(original_directory)
             new_name_ssh = "helium.hpc.uiowa.edu:/Shared/IVR/" + newNameBase
@@ -249,7 +247,7 @@ if config.get('start_makes', 'locked') == 'False':
     for p in pr:
         if len(p) <= 2:
             continue
-        done = False
+        done = True
         logger.info("Looking at %s " % (p,))
         if os.getloadavg()[0] > int(config.get('start_makes', 'maxload')):
             logger.info(
@@ -269,9 +267,13 @@ if config.get('start_makes', 'locked') == 'False':
                 if emailed:
                     if os.path.islink(p):
                         os.remove(p)
-                    done = True
+                else:
+                    done = False
+
         if not done:
             notDone.append(p)
+        else:
+            open(os.path.join(p,'links_done'),'w').close()
     in_progress_runs(notDone)
     config.set('start_makes', 'locked', 'False')
 else:
