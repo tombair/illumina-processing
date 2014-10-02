@@ -143,10 +143,12 @@ def getNewName(project_directory):
 
 def makeLinks(original_directory):
     # get list of directories
+    logger.info("setting up links for %s" %(original_directory,))
     dirs = glob.glob(original_directory + "/Project*")
     plateID = os.path.basename(os.path.dirname(original_directory)).split('_')[2]
     destPlace = config.get('Globals', 'OutDirectory')
     for proj_dir in dirs:
+        logger.info("setting up sub links for %s" %(proj_dir,))
         if os.path.exists(os.path.join(proj_dir,"newFileName.txt")):
             newName = getNewName(proj_dir)
             d_info = figure_id(proj_dir)
@@ -164,7 +166,9 @@ def checkEmailLinks(original_directory):
     dirs = glob.glob(original_directory + "/Project*")
     destPlace = config.get('Globals', 'OutDirectory')
     flag = True
+    logger.info("Checking links for %s" %(original_directory,))
     for proj_dir in dirs:
+        logger.info("Checking sub links for %s" %(proj_dir,))
         newName = getNewName(proj_dir)
         new_project_directory = os.path.join(destPlace,newName)
         try:
