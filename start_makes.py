@@ -62,6 +62,9 @@ def done_make(original_directory):
 
 def sshSubDir(new_project_directory, PI, number, newName):
     # ssh command generation
+    if os.path.exists(os.path.join(new_project_directory, 'pageGen.txt')):
+        logger.info("pageGen.txt already exists in %s " %(new_project_directory,))
+        return
     sshCmd = [config.get('start_makes', 'pageGenPath')]
     sshUrl = config.get('start_makes', 'pageGenHost')
     sshCmd.append('-p')
