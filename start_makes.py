@@ -213,14 +213,14 @@ def rsyncFile(original_directory):
             os.makedirs(newName)
         logger.info("Started rsync from %s to %s " % (proj_dir,newName,))
         rsync_ret_code= subprocess.Popen("rsync -v -r -u %s %s" % (proj_dir, newName), shell=True)
-        logger.info(rsync_ret_code.communicate()[0])
+        logger.info("rsync return codes %s" %(rsync_ret_code.communicate()[0],))
         logger.info("Finished rsync %s to %s " % (proj_dir, newName))
         if int(d_info['id']) < 1:
             email_Adam(original_directory)
             new_name_ssh = "helium.hpc.uiowa.edu:/Shared/IVR/" + newNameBase
             logger.info("This is a Stone run rsync directly from %s to IVR %s " % (proj_dir,new_name_ssh,))
             rsync_ret_code = subprocess.Popen("rsync -v -r %s %s" % (proj_dir, new_name_ssh), shell=True)
-            logger.info(rsync_ret_code.communicate()[0])
+            logger.info("Stone rsync return code %s "% (rsync_ret_code.communicate()[0],))
 
 
 
