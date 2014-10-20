@@ -269,7 +269,10 @@ if config.get('start_makes', 'locked') == 'False':
             if not os.path.exists(os.path.join(p, 'being_Maked')):
                 open(os.path.join(p, 'being_Maked'), 'w').close()
                 make_file(p)
-                open(os.path.join(p, 'done_Maked'), 'w').close()
+                if done_make(p):
+                    open(os.path.join(p, 'done_Maked'), 'w').close()
+                else:
+                    logger.warn("not finding what I need in nohup.out file %s",(p,))
             if not os.path.exists(os.path.join(p, 'done_Rsynced')) and os.path.exists(os.path.join(p, 'done_Maked')):
                 open(os.path.join(p, 'being_Rsynced'), 'w').close()
                 rsyncFile(p)
