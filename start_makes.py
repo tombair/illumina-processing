@@ -38,7 +38,7 @@ def in_progress_runs(array):
 
 def make_file(original_directory):
     os.chdir(original_directory)
-    process = subprocess.Popen(['make', '-j', '8'], stdout=open("nohup.out",'w'),stderr="make_errors", shell=True)
+    process = subprocess.Popen(['make', '-j', '8'], stdout=open("nohup.out",'w'),stderr=open("make_errors",'w'), shell=True)
     out, err = process.communicate()
     logger.info("Started make it returned %s" % (err, ))
     return True
