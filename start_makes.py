@@ -260,7 +260,7 @@ if config.get('start_makes', 'locked') == 'False':
     for p in pr:
         if len(p) <= 2:
             continue
-        done = True
+        done = False
         logger.info("Looking at %s " % (p,))
         if os.getloadavg()[0] > int(config.get('start_makes', 'maxload')):
             logger.info(
@@ -277,20 +277,18 @@ if config.get('start_makes', 'locked') == 'False':
                 open(os.path.join(p, 'being_Rsynced'), 'w').close()
                 rsyncFile(p)
                 open(os.path.join(p, 'done_Rsynced'), 'w').close()
-            if not os.path.exists(os.path.join(p, 'links_done')) and os.path.exists(os.path.join(p, 'done_Rsynced')):
+            if not os.path.exists(os.path.join(p, 'links_Done')) and os.path.exists(os.path.join(p, 'done_Rsynced')):
                 open(os.path.join(p, 'being_Linked'), 'w').close()
                 makeLinks(p)
                 emailed = checkEmailLinks(p)
                 if emailed:
                     if os.path.islink(p):
                         os.remove(p)
-                else:
-                    done = False
-
+                        done = True
         if not done:
             notDone.append(p)
         else:
-            open(os.path.join(p, 'links_done'), 'w').close()
+            open(os.path.join(p, 'links_Done'), 'w').close()
     in_progress_runs(notDone)
     config.set('start_makes', 'locked', 'False')
 else:
