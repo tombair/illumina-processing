@@ -38,7 +38,7 @@ def in_progress_runs(array):
 
 def make_file(original_directory):
     os.chdir(original_directory)
-    process = subprocess.Popen(['make', '-j', '8'], stdout=open("nohup.out",'w'),stderr=open("make_errors",'w'), shell=True)
+    process = subprocess.Popen(['make', '-j', '8'], stdout=open("make_output",'w'),stderr=open("nohup.out",'w'), shell=True)
     out, err = process.communicate()
     logger.info("Started make it returned %s" % (err, ))
     return True
@@ -57,7 +57,7 @@ def done_make(original_directory):
             logger.info("%s completed successfully" % (original_directory, ))
             return True
         logger.info("Found last line of %s in %s" % (last_line, nohup))
-    return True
+    return False
 
 
 def ssh_project(new_project_directory, investigator, number, new_name):
