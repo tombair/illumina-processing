@@ -193,6 +193,7 @@ def checkEmailLinks(original_directory):
                     logger.info("Emailing done results %s " % (c,))
                     email(c)
         else:
+            logger.warn("Failing checkEmailLinks due to missing pageGen.txt in %s" %(new_project_directory,))
             flag = False
     return flag
 
@@ -231,11 +232,15 @@ def rsyncFile(original_directory):
         logger.info("rsync return codes %s" % (rsync_ret_code.communicate()[0],))
         logger.info("Finished rsync %s to %s " % (proj_dir, new_name))
         if int(d_info['id']) < 1:
-            email_Adam(original_directory)
-            new_name_ssh = "helium.hpc.uiowa.edu:/Shared/IVR/" + new_name_base
-            logger.info("This is a Stone run rsync directly from %s to IVR %s " % (proj_dir, new_name_ssh,))
-            rsync_ret_code = subprocess.Popen("rsync -v -r %s %s" % (proj_dir, new_name_ssh), shell=True)
-            logger.info("Stone rsync return code %s " % (rsync_ret_code.communicate()[0],))
+
+            new_name_stone = os.path.join("/mnt/IIHG_transfers/". new_name_base)
+            if os.path.exists(new_name_stone):
+                logger.info("Looks like this Stone directory already exists, will not attempt rsync")
+            else:
+                email_Adam(original_directory)
+                logger.info("This is a Stone run rsync directly from %s to IVR %s " % (proj_dir, new_name_stone,))
+                rsync_ret_code = subprocess.Popen("rsync -v -r %s %s" % (proj_dir, new_name_stone), shell=True)
+                logger.info("Stone rsync return code %s " % (rsync_ret_code.communicate()[0],))
 
 
 config = ConfigParser.SafeConfigParser()
@@ -258,37 +263,36 @@ if config.get('start_makes', 'locked') == 'False':
     logger.info("See %s possible runs to process" % (len(pr)))
     notDone = []
     for p in pr:
-        if len(p) <= 2:
-            continue
-        done = False
-        logger.info("Looking at %s " % (p,))
-        if os.getloadavg()[0] > int(config.get('start_makes', 'maxload')):
-            logger.info(
-                "load is greater than %s will wait %s" % (config.get('start_makes', 'maxload'), os.getloadavg()[0],))
-        else:
-            if not os.path.exists(os.path.join(p, 'being_Maked')):
-                open(os.path.join(p, 'being_Maked'), 'w').close()
-                make_file(p)
-                if done_make(p):
-                    open(os.path.join(p, 'done_Maked'), 'w').close()
-                else:
-                    logger.warn("not finding what I need in nohup.out file %s",(p,))
-            if not os.path.exists(os.path.join(p, 'done_Rsynced')) and os.path.exists(os.path.join(p, 'done_Maked')):
-                open(os.path.join(p, 'being_Rsynced'), 'w').close()
-                rsyncFile(p)
-                open(os.path.join(p, 'done_Rsynced'), 'w').close()
-            if not os.path.exists(os.path.join(p, 'links_Done')) and os.path.exists(os.path.join(p, 'done_Rsynced')):
-                open(os.path.join(p, 'being_Linked'), 'w').close()
-                makeLinks(p)
-                emailed = checkEmailLinks(p)
-                if emailed:
-                    if os.path.islink(p):
-                        os.remove(p)
+        if not p.strip(): #ignore whitespace lines
+            done = False
+            logger.info("Looking at %s " % (p,))
+            if os.getloadavg()[0] > int(config.get('start_makes', 'maxload')):
+                logger.info(
+                    "load is greater than %s will wait %s" % (config.get('start_makes', 'maxload'), os.getloadavg()[0],))
+            else:
+                if not os.path.exists(os.path.join(p, 'being_Maked')):
+                    open(os.path.join(p, 'being_Maked'), 'w').close()
+                    make_file(p)
+                    if done_make(p):
+                        open(os.path.join(p, 'done_Maked'), 'w').close()
+                    else:
+                        logger.warn("not finding what I need in nohup.out file %s",(p,))
+                if not os.path.exists(os.path.join(p, 'done_Rsynced')) and os.path.exists(os.path.join(p, 'done_Maked')):
+                    open(os.path.join(p, 'being_Rsynced'), 'w').close()
+                    rsyncFile(p)
+                    open(os.path.join(p, 'done_Rsynced'), 'w').close()
+                if not os.path.exists(os.path.join(p, 'links_Done')) and os.path.exists(os.path.join(p, 'done_Rsynced')):
+                    open(os.path.join(p, 'being_Linked'), 'w').close()
+                    makeLinks(p)
+                    emailed = checkEmailLinks(p)
+                    if emailed:
+                        if os.path.islink(p):
+                            os.remove(p)
                         done = True
-        if not done:
-            notDone.append(p)
-        else:
-            open(os.path.join(p, 'links_Done'), 'w').close()
+            if not done:
+                notDone.append(p)
+            else:
+                open(os.path.join(p, 'links_Done'), 'w').close()
     in_progress_runs(notDone)
     config.set('start_makes', 'locked', 'False')
 else:
