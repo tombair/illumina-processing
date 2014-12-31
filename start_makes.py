@@ -233,7 +233,7 @@ def rsyncFile(original_directory):
         logger.info("Finished rsync %s to %s " % (proj_dir, new_name))
         if int(d_info['id']) < 1:
 
-            new_name_stone = os.path.join("/mnt/IIHG_transfers/". new_name_base)
+            new_name_stone = os.path.join("/mnt/IIHG_transfers/", new_name_base)
             if os.path.exists(new_name_stone):
                 logger.info("Looks like this Stone directory already exists, will not attempt rsync")
             else:
