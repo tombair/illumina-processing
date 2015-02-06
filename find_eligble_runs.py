@@ -89,7 +89,7 @@ def process_sample_sheet(size, directory, csvFile):
         line = line.strip('\n')
         line = line.strip('\r')
         line = line.replace('.', '_') # everything weird gets collapsed to _ so bclToFastq doesn't choke
-        line = line.replace('-', '_')
+        #line = line.replace('-', '_') #removed so that dual indexing works
         line = line.replace(' ', '_')
         cols = line.split(',')
         index_size = len(cols[4])
@@ -114,11 +114,16 @@ Function to take directory path, size of index, and path to sample sheet. Runs t
     """
     output = os.path.join(base_directory, "Unaligned%s" % (size, ))
     logger.info("configureBclToFastq for size %s" % (size, ))
-    if size > 1:
+    if size >=6 and size <=8:
         bcl_process = subprocess.Popen(
             ['/opt/illumina/bin/configureBclToFastq.pl', '--sample-sheet', sample_sheet, '--input-dir',
              base_directory + '/Data/Intensities/BaseCalls', '--output-dir', output, '--ignore-missing-bcl',
              '--ignore-missing-stat', '--fastq-cluster-count=0', "--use-bases-mask=y*,I%sN*,y*" % (size,)], stdout=subprocess.PIPE)
+    elif size >8:
+            bcl_process = subprocess.Popen(
+            ['/opt/illumina/bin/configureBclToFastq.pl', '--sample-sheet', sample_sheet, '--input-dir',
+             base_directory + '/Data/Intensities/BaseCalls', '--output-dir', output, '--ignore-missing-bcl',
+             '--ignore-missing-stat', '--fastq-cluster-count=0', "--use-bases-mask=Y'*,I*,I*,Y*" % (size,)], stdout=subprocess.PIPE)
     else:
         bcl_process = subprocess.Popen(
             ['/opt/illumina/bin/configureBclToFastq.pl', '--sample-sheet', sample_sheet, '--input-dir',
